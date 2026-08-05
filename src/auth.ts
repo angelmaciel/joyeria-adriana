@@ -7,23 +7,19 @@ import { getClientIp } from "@/lib/request-ip";
 
 const useSecureCookies = process.env.NODE_ENV === "production";
 
-// Detrás del proxy de Render el Host que ve la app es "localhost:10000", así que
-// Auth.js redirigía ahí después del login. AUTH_URL es la forma de decirle cuál
-// es la URL pública; la tomamos de SITE_URL para no duplicar la misma config.
-const publicUrl = process.env.AUTH_URL ?? process.env.SITE_URL;
-if (publicUrl) process.env.AUTH_URL = publicUrl;
-
 class TooManyAttempts extends CredentialsSignin {
   code = "too_many_attempts";
 }
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
-  // Ojo con el orden de precedencia: trustHost hace que Auth.js use el Host del
-  // pedido e IGNORE AUTH_URL. Detrás del proxy ese Host es localhost:10000, así
-  // que solo confiamos en él cuando no tenemos una URL pública configurada
-  // (desarrollo). Sin ninguna de las dos, el login falla con
-  // "There was a problem with the server configuration".
-  trustHost: !publicUrl,
+  // Auth.js solo deduce la URL pública por su cuenta en Vercel; en cualquier otro
+  // host hay que habilitarlo explícitamente o rechaza todo con "UntrustedHost".
+  // Es seguro porque la app nunca queda expuesta directo: siempre hay un proxy
+  // (Render en producción, next dev en local) que fija el Host.
+  // Para que los redirects apunten al dominio público y no al puerto interno,
+  // definir AUTH_URL como variable de entorno — asignarla por código acá NO
+  // funciona: @auth/core ya leyó el entorno para entonces.
+  trustHost: true,
   providers: [
     Credentials({
       credentials: {

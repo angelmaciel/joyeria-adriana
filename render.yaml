@@ -22,6 +22,8 @@ services:
         sync: false
       - key: SITE_URL
         sync: false
+      - key: AUTH_URL
+        sync: false
       - key: WHATSAPP_NUMBER
         sync: false
       - key: SMTP_HOST
