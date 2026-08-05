@@ -1,0 +1,92 @@
+import { notFound } from "next/navigation";
+import { User, Phone, Camera, MessageSquareText, MessageCircle } from "lucide-react";
+import { prisma } from "@/lib/prisma";
+import { createServiceRequest } from "@/lib/actions";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+
+export default async function SolicitarServicioPage({
+  params,
+  searchParams,
+}: PageProps<"/servicios/solicitar/[slug]">) {
+  const { slug } = await params;
+  const { error } = await searchParams;
+
+  const serviceType = await prisma.serviceType.findFirst({
+    where: { slug, isActive: true },
+  });
+  if (!serviceType) notFound();
+
+  return (
+    <div className="mx-auto w-full max-w-md px-4 py-8">
+      <h1 className="text-center">{serviceType.name}</h1>
+      <p className="mt-1 text-center text-muted-foreground">{serviceType.description}</p>
+
+      <form
+        action={createServiceRequest}
+        className="mt-6 flex flex-col gap-4"
+      >
+        <input type="hidden" name="serviceTypeId" value={serviceType.id} />
+        <input type="hidden" name="serviceTypeSlug" value={serviceType.slug} />
+        <div className="flex flex-col gap-1.5">
+          <Label htmlFor="clientName">
+            <User className="size-5 text-primary" />
+            Nombre
+          </Label>
+          <Input id="clientName" name="clientName" required minLength={2} />
+        </div>
+        <div className="flex flex-col gap-1.5">
+          <Label htmlFor="clientPhone">
+            <Phone className="size-5 text-primary" />
+            Teléfono
+          </Label>
+          <Input id="clientPhone" name="clientPhone" required minLength={6} />
+        </div>
+        <div className="flex flex-col gap-1.5">
+          <Label htmlFor="description">
+            <MessageSquareText className="size-5 text-primary" />
+            Contanos qué necesitás
+          </Label>
+          <Textarea id="description" name="description" required minLength={10} rows={4} />
+        </div>
+        <div className="flex flex-col gap-1.5">
+          <Label htmlFor="referenceImage">
+            <Camera className="size-5 text-primary" />
+            Foto de referencia (opcional)
+          </Label>
+          <input
+            id="referenceImage"
+            name="referenceImage"
+            type="file"
+            accept="image/*"
+            className="text-sm file:mr-3 file:rounded-lg file:border-0 file:bg-secondary file:px-3 file:py-1.5 file:text-sm file:font-medium"
+          />
+          <p className="text-xs text-muted-foreground">
+            Sacale una foto a la pieza o subí tu boceto — se envía junto con el mensaje.
+          </p>
+        </div>
+        {error === "rate" ? (
+          <p className="text-sm text-destructive">
+            Enviaste varias solicitudes seguidas. Esperá unos minutos e intentá de nuevo.
+          </p>
+        ) : (
+          error && (
+            <p className="text-sm text-destructive">
+              Revisá los datos ingresados e intentá de nuevo.
+            </p>
+          )
+        )}
+        <Button
+          type="submit"
+          size="lg"
+          className="mt-2 bg-[#25D366] text-white hover:bg-[#1ebe57]"
+        >
+          <MessageCircle />
+          Enviar por WhatsApp
+        </Button>
+      </form>
+    </div>
+  );
+}

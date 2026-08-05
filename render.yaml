@@ -1,0 +1,41 @@
+services:
+  - type: web
+    name: joyeria-adriana
+    runtime: node
+    plan: free
+    region: oregon
+    buildCommand: npm ci && npx prisma generate && npx prisma migrate deploy && npm run build
+    startCommand: npm run start
+    healthCheckPath: /
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      # Los valores reales se cargan desde el dashboard de Render (Environment),
+      # nunca en este archivo: queda versionado en git.
+      - key: DATABASE_URL
+        sync: false
+      - key: AUTH_SECRET
+        sync: false
+      - key: ENCRYPTION_KEY
+        sync: false
+      - key: SITE_URL
+        sync: false
+      - key: WHATSAPP_NUMBER
+        sync: false
+      - key: SMTP_HOST
+        sync: false
+      - key: SMTP_PORT
+        sync: false
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASSWORD
+        sync: false
+      - key: SMTP_FROM
+        sync: false
+    # Disco persistente para las fotos subidas (productos y solicitudes).
+    # Requiere plan pago: sin esto, cada despliegue borra las imágenes.
+    # Descomentar cuando se carguen fotos reales del catálogo.
+    # disk:
+    #   name: uploads
+    #   mountPath: /opt/render/project/src/public/uploads
+    #   sizeGB: 1
