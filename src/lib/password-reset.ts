@@ -1,6 +1,8 @@
 import { createHash, randomBytes } from "crypto";
 
-export const RESET_TOKEN_TTL_MS = 60 * 60 * 1000;
+// 24h en vez de 1h: el enlace suele abrirse desde el celular, a veces horas
+// después de pedirlo. Sigue siendo de un solo uso, que es lo que acota el riesgo.
+export const RESET_TOKEN_TTL_MS = 24 * 60 * 60 * 1000;
 
 export function generateResetToken() {
   const token = randomBytes(32).toString("base64url");

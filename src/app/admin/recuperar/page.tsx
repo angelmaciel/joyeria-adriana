@@ -17,7 +17,7 @@ export default async function RecuperarPage({
         <h1>Revisá tu correo</h1>
         <p className="text-muted-foreground">
           Si el email está registrado, te enviamos un enlace para crear una nueva
-          contraseña. Vence en 1 hora.
+          contraseña. Vence en 24 horas.
         </p>
         <Button variant="outline" nativeButton={false} render={<Link href="/admin/login" />}>
           Volver al ingreso

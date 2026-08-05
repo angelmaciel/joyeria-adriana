@@ -31,14 +31,12 @@ export async function requestPasswordReset(formData: FormData) {
   const email = String(formData.get("email") ?? "").trim().toLowerCase();
   const ip = await getClientIp();
 
-  // Dos límites con propósitos distintos: por email para que nadie inunde de
-  // correos una cuenta concreta, y por IP —más holgado— contra alguien que
-  // pruebe muchas cuentas. Si el límite fuera solo por IP, un usuario que se
-  // equivoca un par de veces dejaría bloqueados a los demás.
-  // 5 alcanza para quien no vio el correo y reintenta un par de veces; con 3 se
-  // bloqueaba a gente legítima.
-  const perEmail = checkRateLimit(`reset-email:${email}`, 5, FIFTEEN_MIN);
-  const perIp = checkRateLimit(`reset-ip:${ip}`, 20, FIFTEEN_MIN);
+  // Límites deliberadamente altos: no están para molestar a quien reintenta
+  // —eso ya causó problemas reales— sino solo para que nadie pueda usar este
+  // formulario como herramienta para inundar de correos una casilla ajena.
+  // Una persona normal nunca los va a alcanzar.
+  const perEmail = checkRateLimit(`reset-email:${email}`, 30, FIFTEEN_MIN);
+  const perIp = checkRateLimit(`reset-ip:${ip}`, 60, FIFTEEN_MIN);
   if (!perEmail.allowed || !perIp.allowed) {
     // Se informa la espera concreta: "esperá unos minutos" deja a la persona
     // reintentando a ciegas.
@@ -55,7 +53,7 @@ export async function requestPasswordReset(formData: FormData) {
     // más común: la persona no ve el correo, vuelve a pedirlo, y al abrir
     // cualquiera de los mensajes de su bandeja se encuentra con "enlace
     // vencido" sin entender por qué. Ahora conviven: igual son de un solo uso y
-    // duran 1 hora, así que la ventana de exposición no cambia.
+    // son de un solo uso, que es lo que acota el riesgo.
     // Solo se limpian los que ya no sirven, para no acumular basura.
     await prisma.passwordResetToken.deleteMany({
       where: {
@@ -103,7 +101,7 @@ export async function resetPassword(formData: FormData) {
   // El token tiene 256 bits, así que adivinarlo es inviable; el límite es para
   // que nadie pueda martillar este endpoint gratis.
   const ip = await getClientIp();
-  const { allowed } = checkRateLimit(`reset-submit:${ip}`, 10, FIFTEEN_MIN);
+  const { allowed } = checkRateLimit(`reset-submit:${ip}`, 60, FIFTEEN_MIN);
   if (!allowed) redirect(`/admin/recuperar/${token}?error=rate`);
 
   const parsed = newPasswordSchema.safeParse({

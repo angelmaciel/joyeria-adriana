@@ -4,14 +4,14 @@ import { BUSINESS_NAME } from "@/lib/constants";
 const ASUNTO = `Recuperar contraseña — ${BUSINESS_NAME}`;
 
 function cuerpoTexto(resetUrl: string) {
-  return `Para crear una nueva contraseña entrá en este enlace (vence en 1 hora):\n\n${resetUrl}\n\nSi no pediste esto, ignorá el mensaje.`;
+  return `Para crear una nueva contraseña entrá en este enlace (vence en 24 horas):\n\n${resetUrl}\n\nSi no pediste esto, ignorá el mensaje.`;
 }
 
 function cuerpoHtml(resetUrl: string) {
   return `
       <p>Recibimos un pedido para restablecer la contraseña de tu cuenta de administración.</p>
       <p><a href="${resetUrl}">Crear una nueva contraseña</a></p>
-      <p>El enlace vence en 1 hora. Si no pediste esto, ignorá el mensaje.</p>
+      <p>El enlace vence en 24 horas. Si no pediste esto, ignorá el mensaje.</p>
     `;
 }
 
