@@ -21,6 +21,16 @@ const nextConfig: NextConfig = {
   images: {
     remotePatterns: [{ protocol: "https", hostname: "placehold.co" }],
   },
+  experimental: {
+    serverActions: {
+      // Las fotos de celular pesan varios MB y el límite por defecto (1 MB) las
+      // rechazaba. Se deja bien por encima de MAX_SIZE_BYTES (8 MB, en
+      // src/lib/uploads.ts) a propósito: así el archivo llega hasta nuestro
+      // código y el usuario ve "la foto pesa demasiado" en vez del 500 crudo de
+      // Next. Solo un archivo absurdo (>12 MB) cae en el error sin formato.
+      bodySizeLimit: "12mb",
+    },
+  },
   async headers() {
     return [
       {

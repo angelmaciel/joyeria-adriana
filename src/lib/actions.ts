@@ -88,9 +88,11 @@ export async function createServiceRequest(formData: FormData) {
   }
 
   const photo = formData.get("referenceImage");
-  const referenceImageUrl = await saveRequestImage(
-    photo instanceof File ? photo : null
-  );
+  const image = await saveRequestImage(photo instanceof File ? photo : null);
+  if (!image.ok) {
+    redirect(`/servicios/solicitar/${slug}?error=${image.reason}`);
+  }
+  const referenceImageUrl = image.url;
 
   const serviceType = await prisma.serviceType.findUnique({
     where: { id: parsed.data.serviceTypeId },
@@ -137,9 +139,11 @@ export async function createGoldPurchaseRequest(formData: FormData) {
   }
 
   const photo = formData.get("referenceImage");
-  const referenceImageUrl = await saveRequestImage(
-    photo instanceof File ? photo : null
-  );
+  const image = await saveRequestImage(photo instanceof File ? photo : null);
+  if (!image.ok) {
+    redirect(`/vender-oro?error=${image.reason}`);
+  }
+  const referenceImageUrl = image.url;
 
   await prisma.goldPurchaseRequest.create({
     data: {
