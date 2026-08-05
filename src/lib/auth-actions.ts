@@ -35,10 +35,15 @@ export async function requestPasswordReset(formData: FormData) {
   // correos una cuenta concreta, y por IP —más holgado— contra alguien que
   // pruebe muchas cuentas. Si el límite fuera solo por IP, un usuario que se
   // equivoca un par de veces dejaría bloqueados a los demás.
-  const perEmail = checkRateLimit(`reset-email:${email}`, 3, FIFTEEN_MIN);
-  const perIp = checkRateLimit(`reset-ip:${ip}`, 15, FIFTEEN_MIN);
+  // 5 alcanza para quien no vio el correo y reintenta un par de veces; con 3 se
+  // bloqueaba a gente legítima.
+  const perEmail = checkRateLimit(`reset-email:${email}`, 5, FIFTEEN_MIN);
+  const perIp = checkRateLimit(`reset-ip:${ip}`, 20, FIFTEEN_MIN);
   if (!perEmail.allowed || !perIp.allowed) {
-    redirect("/admin/recuperar?error=rate");
+    // Se informa la espera concreta: "esperá unos minutos" deja a la persona
+    // reintentando a ciegas.
+    const seg = Math.max(perEmail.retryAfterSeconds, perIp.retryAfterSeconds);
+    redirect(`/admin/recuperar?error=rate&min=${Math.ceil(seg / 60)}`);
   }
 
   const user = email

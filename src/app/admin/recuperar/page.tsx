@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 export default async function RecuperarPage({
   searchParams,
 }: PageProps<"/admin/recuperar">) {
-  const { enviado, error } = await searchParams;
+  const { enviado, error, min } = await searchParams;
 
   if (enviado) {
     return (
@@ -42,7 +42,8 @@ export default async function RecuperarPage({
         </div>
         {error === "rate" && (
           <p className="text-sm text-destructive">
-            Demasiados intentos. Esperá unos minutos e intentá de nuevo.
+            Ya pediste el enlace varias veces. Probá de nuevo en{" "}
+            {typeof min === "string" ? `${min} minuto${min === "1" ? "" : "s"}` : "unos minutos"}.
           </p>
         )}
         <Button type="submit" className="mt-2">
