@@ -51,8 +51,18 @@ export async function requestPasswordReset(formData: FormData) {
     : null;
 
   if (user) {
-    // Un solo token válido a la vez: los pedidos anteriores quedan inutilizables.
-    await prisma.passwordResetToken.deleteMany({ where: { userId: user.id } });
+    // Antes cada pedido anulaba el anterior. En la práctica eso rompía el caso
+    // más común: la persona no ve el correo, vuelve a pedirlo, y al abrir
+    // cualquiera de los mensajes de su bandeja se encuentra con "enlace
+    // vencido" sin entender por qué. Ahora conviven: igual son de un solo uso y
+    // duran 1 hora, así que la ventana de exposición no cambia.
+    // Solo se limpian los que ya no sirven, para no acumular basura.
+    await prisma.passwordResetToken.deleteMany({
+      where: {
+        userId: user.id,
+        OR: [{ expiresAt: { lt: new Date() } }, { usedAt: { not: null } }],
+      },
+    });
 
     const { token, tokenHash } = generateResetToken();
     await prisma.passwordResetToken.create({
@@ -118,6 +128,12 @@ export async function resetPassword(formData: FormData) {
         // cambiar la contraseña tiene que echar al intruso.
         passwordChangedAt: new Date(),
       },
+    }),
+    // Se anulan TODOS los enlaces pendientes de esa cuenta, no solo el usado:
+    // ahora pueden coexistir varios y uno viejo no debe servir para volver a
+    // cambiar la contraseña después.
+    prisma.passwordResetToken.deleteMany({
+      where: { userId: record.userId, id: { not: record.id } },
     }),
     prisma.passwordResetToken.update({
       where: { id: record.id },
