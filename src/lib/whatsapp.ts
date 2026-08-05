@@ -1,3 +1,4 @@
+import { imagenOptimizada } from "@/lib/cloudinary";
 export function buildWhatsAppLink(message: string) {
   const number = process.env.WHATSAPP_NUMBER;
   const text = encodeURIComponent(message);
@@ -29,10 +30,12 @@ export function buildRequestWhatsAppMessage(input: {
     `Detalle: ${input.description}`,
   ];
   if (input.imageUrl) {
-    // Cloudinary ya devuelve una URL absoluta; el disco local devuelve una ruta
-    // relativa que hay que completar con el dominio para que WhatsApp la resuelva.
+    // Se manda la versión transformada, no el original: además de pesar mucho
+    // menos, Cloudinary le quita los metadatos EXIF. Las fotos sacadas con el
+    // celular suelen traer las coordenadas GPS de donde se tomaron —la casa del
+    // cliente— y esa URL termina compartida en un chat.
     const url = input.imageUrl.startsWith("http")
-      ? input.imageUrl
+      ? imagenOptimizada(input.imageUrl, 1200)
       : `${siteUrl()}${input.imageUrl}`;
     // Va última y sola: WhatsApp arma la previsualización con el último enlace
     // del mensaje, así la foto se ve como miniatura en el chat.

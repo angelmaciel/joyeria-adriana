@@ -13,7 +13,12 @@ export function ReferencePhoto({ url }: { url: string | null }) {
   return (
     <div className="mt-3">
       <p className="mb-1.5 text-xs text-muted-foreground">Foto enviada por el cliente</p>
-      <a href={url} target="_blank" rel="noopener noreferrer" className="inline-block">
+      <a
+        href={imagenOptimizada(url, 1600)}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="inline-block"
+      >
         <Image
           src={imagenOptimizada(url, 700)}
           alt="Foto de referencia enviada por el cliente"

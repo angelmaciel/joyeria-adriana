@@ -50,6 +50,34 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       },
     }),
   ],
+  callbacks: {
+    // Las sesiones son JWT: no hay tabla que vaciar para cerrar sesiones ajenas.
+    // Se guarda en el token cuándo se emitió y se compara contra el último
+    // cambio de contraseña, de modo que resetearla expulse a quien ya estuviera
+    // dentro (que es el caso de una cuenta comprometida).
+    // La comprobación va acá y no en el callback `session`: devolver null desde
+    // `session` no invalida nada, Auth.js solo descarta la sesión cuando el
+    // callback `jwt` devuelve null.
+    jwt: async ({ token, user }) => {
+      if (user) {
+        token.emitidoEn = Date.now();
+        return token;
+      }
+
+      const admin = token.email
+        ? await prisma.adminUser.findUnique({
+            where: { email: token.email },
+            select: { passwordChangedAt: true },
+          })
+        : null;
+
+      const emitidoEn = typeof token.emitidoEn === "number" ? token.emitidoEn : 0;
+      // Cuenta borrada, o token emitido antes del último cambio de contraseña.
+      if (!admin || admin.passwordChangedAt.getTime() > emitidoEn) return null;
+
+      return token;
+    },
+  },
   pages: {
     signIn: "/admin/login",
   },

@@ -84,6 +84,13 @@ export async function requestPasswordReset(formData: FormData) {
 
 export async function resetPassword(formData: FormData) {
   const token = String(formData.get("token") ?? "");
+
+  // El token tiene 256 bits, así que adivinarlo es inviable; el límite es para
+  // que nadie pueda martillar este endpoint gratis.
+  const ip = await getClientIp();
+  const { allowed } = checkRateLimit(`reset-submit:${ip}`, 10, FIFTEEN_MIN);
+  if (!allowed) redirect(`/admin/recuperar/${token}?error=rate`);
+
   const parsed = newPasswordSchema.safeParse({
     password: formData.get("password"),
     confirm: formData.get("confirm"),
@@ -100,7 +107,12 @@ export async function resetPassword(formData: FormData) {
   await prisma.$transaction([
     prisma.adminUser.update({
       where: { id: record.userId },
-      data: { passwordHash: await bcrypt.hash(parsed.data.password, BCRYPT_ROUNDS) },
+      data: {
+        passwordHash: await bcrypt.hash(parsed.data.password, BCRYPT_ROUNDS),
+        // Invalida las sesiones abiertas: si la cuenta estaba comprometida,
+        // cambiar la contraseña tiene que echar al intruso.
+        passwordChangedAt: new Date(),
+      },
     }),
     prisma.passwordResetToken.update({
       where: { id: record.id },

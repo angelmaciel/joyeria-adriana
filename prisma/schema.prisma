@@ -102,6 +102,10 @@ model AdminUser {
   name         String?
   email        String              @unique
   passwordHash String
+  // Marca de tiempo del último cambio de contraseña. Las sesiones son JWT (no
+  // hay tabla de sesiones que borrar), así que se comparan contra este valor
+  // para poder invalidarlas al cambiar la contraseña.
+  passwordChangedAt DateTime       @default(now())
   resetTokens  PasswordResetToken[]
 }
 

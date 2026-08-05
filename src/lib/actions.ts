@@ -235,7 +235,10 @@ export async function updateGoldPurchaseRequest(formData: FormData) {
 }
 
 async function uniqueSlug(name: string) {
-  const base = slugify(name);
+  // slugify devuelve "" si el nombre no tiene letras ni números latinos
+  // (símbolos, emojis, kanji). Sin este respaldo el producto quedaría en
+  // /producto/ , una URL que no existe, y sería inalcanzable desde el catálogo.
+  const base = slugify(name) || "producto";
   let slug = base;
   let n = 2;
   while (await prisma.product.findUnique({ where: { slug } })) {
