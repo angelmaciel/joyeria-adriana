@@ -7,6 +7,13 @@ import { getClientIp } from "@/lib/request-ip";
 
 const useSecureCookies = process.env.NODE_ENV === "production";
 
+// Detrás del proxy de Render el Host que ve la app es "localhost:10000", así que
+// Auth.js redirigía ahí después del login. AUTH_URL es la forma de decirle cuál
+// es la URL pública; la tomamos de SITE_URL para no duplicar la misma config.
+if (!process.env.AUTH_URL && process.env.SITE_URL) {
+  process.env.AUTH_URL = process.env.SITE_URL;
+}
+
 class TooManyAttempts extends CredentialsSignin {
   code = "too_many_attempts";
 }
