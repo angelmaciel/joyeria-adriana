@@ -317,6 +317,38 @@ export async function updateProduct(formData: FormData) {
   redirect("/admin/productos?ok=producto_actualizado");
 }
 
+// Borrado definitivo. Se distingue de "desactivar", que solo lo saca del
+// catálogo pero conserva los datos.
+export async function deleteProduct(formData: FormData) {
+  const actorEmail = await requireAdmin();
+
+  const id = String(formData.get("id"));
+  const product = await prisma.product.findUnique({
+    where: { id },
+    include: { images: true },
+  });
+  if (!product) redirect("/admin/productos");
+
+  // Las fotos se borran de Cloudinary primero: si se borrara la fila antes,
+  // se perderían las URLs y quedarían ocupando espacio para siempre.
+  await Promise.all(product.images.map((img) => deleteUploadedImage(img.url)));
+
+  // Las ProductImage caen solas por el onDelete: Cascade del esquema.
+  await prisma.product.delete({ where: { id } });
+
+  await writeAuditLog({
+    actorEmail,
+    action: "delete",
+    entityType: "Product",
+    entityId: id,
+    details: product.name,
+  });
+
+  revalidatePath("/admin/productos");
+  revalidatePath("/catalogo");
+  redirect("/admin/productos?ok=producto_eliminado");
+}
+
 export async function toggleProductActive(formData: FormData) {
   await requireAdmin();
 

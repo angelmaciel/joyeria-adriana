@@ -9,6 +9,7 @@ const MENSAJES: Record<string, string> = {
   producto_actualizado: "Cambios guardados.",
   producto_activado: "El producto volvió a estar visible en el catálogo.",
   producto_desactivado: "El producto ya no se muestra en el catálogo.",
+  producto_eliminado: "Producto eliminado.",
   solicitud_actualizada: "Solicitud actualizada.",
   password_actualizada: "Contraseña actualizada. Ya podés ingresar.",
 };
