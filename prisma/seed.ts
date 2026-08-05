@@ -102,20 +102,9 @@ async function main() {
     },
   });
 
-  // Segunda cuenta de administración, para quien mantiene el sistema.
-  const devEmail = "angelmaciel176@gmail.com";
-  await prisma.adminUser.upsert({
-    where: { email: devEmail },
-    update: {},
-    create: {
-      name: "Angel Maciel",
-      email: devEmail,
-      passwordHash: await bcrypt.hash("REDACTADO", 12),
-    },
-  });
 
   console.log("Seed completado.");
-  console.log(`Admins -> ${adrianaEmail} y ${devEmail} / REDACTADO (cambiar en el primer ingreso)`);
+  console.log(`Admin -> ${adrianaEmail}`);
 }
 
 main()
