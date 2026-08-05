@@ -3,7 +3,9 @@ services:
     name: joyeria-adriana
     runtime: node
     plan: free
-    region: oregon
+    # Virginia porque la base de Prisma Postgres está en us-east-1: cada página
+    # hace varias consultas, y desde Oregon cada una pagaría el cruce del país.
+    region: virginia
     buildCommand: npm ci && npx prisma generate && npx prisma migrate deploy && npm run build
     startCommand: npm run start
     healthCheckPath: /
