@@ -16,6 +16,12 @@ function getTransport() {
     port: Number(process.env.SMTP_PORT ?? 587),
     secure: Number(process.env.SMTP_PORT ?? 587) === 465,
     auth: { user, pass },
+    // Muchos hosts (Render free entre ellos) bloquean el SMTP saliente: la
+    // conexión no falla, se queda colgada. Sin estos timeouts el formulario
+    // queda esperando para siempre y el usuario no ve ninguna respuesta.
+    connectionTimeout: 10_000,
+    greetingTimeout: 10_000,
+    socketTimeout: 15_000,
   });
 }
 

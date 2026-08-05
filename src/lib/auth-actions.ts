@@ -25,12 +25,22 @@ const newPasswordSchema = z
     message: "Las contraseñas no coinciden.",
   });
 
-export async function requestPasswordReset(formData: FormData) {
-  const ip = await getClientIp();
-  const { allowed } = checkRateLimit(`reset:${ip}`, 3, 15 * 60 * 1000);
-  if (!allowed) redirect("/admin/recuperar?error=rate");
+const FIFTEEN_MIN = 15 * 60 * 1000;
 
+export async function requestPasswordReset(formData: FormData) {
   const email = String(formData.get("email") ?? "").trim().toLowerCase();
+  const ip = await getClientIp();
+
+  // Dos límites con propósitos distintos: por email para que nadie inunde de
+  // correos una cuenta concreta, y por IP —más holgado— contra alguien que
+  // pruebe muchas cuentas. Si el límite fuera solo por IP, un usuario que se
+  // equivoca un par de veces dejaría bloqueados a los demás.
+  const perEmail = checkRateLimit(`reset-email:${email}`, 3, FIFTEEN_MIN);
+  const perIp = checkRateLimit(`reset-ip:${ip}`, 15, FIFTEEN_MIN);
+  if (!perEmail.allowed || !perIp.allowed) {
+    redirect("/admin/recuperar?error=rate");
+  }
+
   const user = email
     ? await prisma.adminUser.findUnique({ where: { email } })
     : null;
@@ -48,10 +58,24 @@ export async function requestPasswordReset(formData: FormData) {
       },
     });
 
-    await sendPasswordResetEmail(
-      user.email,
-      `${siteUrl()}/admin/recuperar/${token}`
-    );
+    // El envío no debe tumbar la acción: si el correo falla, el token ya quedó
+    // creado y el enlace aparece en los logs del servidor, así que la admin
+    // igual puede recuperar la cuenta. Devolver siempre la misma respuesta
+    // evita además revelar si el email existe.
+    try {
+      await sendPasswordResetEmail(
+        user.email,
+        `${siteUrl()}/admin/recuperar/${token}`
+      );
+    } catch (error) {
+      console.error(
+        "[reset] No se pudo enviar el email:",
+        (error as Error).message
+      );
+      console.error(
+        `[reset] Enlace para ${user.email}: ${siteUrl()}/admin/recuperar/${token}`
+      );
+    }
   }
 
   // Siempre el mismo resultado exista o no la cuenta: no revelar qué emails están registrados.
