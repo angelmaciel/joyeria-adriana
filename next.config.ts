@@ -19,7 +19,10 @@ const csp = [
 
 const nextConfig: NextConfig = {
   images: {
-    remotePatterns: [{ protocol: "https", hostname: "placehold.co" }],
+    remotePatterns: [
+      { protocol: "https", hostname: "placehold.co" },
+      { protocol: "https", hostname: "res.cloudinary.com" },
+    ],
   },
   experimental: {
     serverActions: {

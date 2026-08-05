@@ -1,5 +1,11 @@
 import { mkdir, unlink, writeFile } from "fs/promises";
 import path from "path";
+import {
+  borrarDeCloudinary,
+  cloudinaryConfigurado,
+  esUrlDeCloudinary,
+  subirACloudinary,
+} from "@/lib/cloudinary";
 
 const UPLOADS_ROOT = path.join(process.cwd(), "public", "uploads");
 const UPLOAD_DIR = path.join(UPLOADS_ROOT, "products");
@@ -35,23 +41,32 @@ function detectImageExtension(buffer: Buffer) {
   return SIGNATURES.find((s) => s.matches(buffer))?.ext;
 }
 
+// Cloudinary si está configurado; si no, disco local. El disco solo sirve para
+// desarrollo: en Render se borra en cada despliegue y las fotos quedan en 404.
+async function guardarImagen(buffer: Buffer, ext: string, carpeta: string) {
+  if (cloudinaryConfigurado()) {
+    return subirACloudinary(buffer, `joyeria/${carpeta}`);
+  }
+
+  const dir = path.join(UPLOADS_ROOT, carpeta);
+  await mkdir(dir, { recursive: true });
+  const filename = `${crypto.randomUUID()}${ext}`;
+  await writeFile(path.join(dir, filename), buffer);
+  return `/uploads/${carpeta}/${filename}`;
+}
+
 export async function saveUploadedImages(files: File[]): Promise<string[]> {
   const candidates = files.filter(
     (f) => f.size > 0 && f.size <= MAX_SIZE_BYTES
   );
   if (candidates.length === 0) return [];
 
-  await mkdir(UPLOAD_DIR, { recursive: true });
-
   const urls: string[] = [];
   for (const file of candidates) {
     const buffer = Buffer.from(await file.arrayBuffer());
     const ext = detectImageExtension(buffer);
     if (!ext) continue;
-
-    const filename = `${crypto.randomUUID()}${ext}`;
-    await writeFile(path.join(UPLOAD_DIR, filename), buffer);
-    urls.push(`/uploads/products/${filename}`);
+    urls.push(await guardarImagen(buffer, ext, "products"));
   }
   return urls;
 }
@@ -77,15 +92,15 @@ export async function saveRequestImage(
   const ext = detectImageExtension(buffer);
   if (!ext) return { ok: false, reason: "not_image" };
 
-  const dir = path.join(UPLOADS_ROOT, "solicitudes");
-  await mkdir(dir, { recursive: true });
-
-  const filename = `${crypto.randomUUID()}${ext}`;
-  await writeFile(path.join(dir, filename), buffer);
-  return { ok: true, url: `/uploads/solicitudes/${filename}` };
+  return { ok: true, url: await guardarImagen(buffer, ext, "solicitudes") };
 }
 
 export async function deleteUploadedImage(url: string) {
+  if (esUrlDeCloudinary(url)) {
+    await borrarDeCloudinary(url);
+    return;
+  }
+
   if (!url.startsWith("/uploads/products/")) return;
   // basename descarta cualquier "../" — la URL viene de la DB, pero el path
   // se construye acá y no debe poder escapar del directorio de uploads.

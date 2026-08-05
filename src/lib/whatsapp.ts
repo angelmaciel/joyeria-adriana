@@ -29,7 +29,14 @@ export function buildRequestWhatsAppMessage(input: {
     `Detalle: ${input.description}`,
   ];
   if (input.imageUrl) {
-    lines.push("", `Foto de referencia: ${siteUrl()}${input.imageUrl}`);
+    // Cloudinary ya devuelve una URL absoluta; el disco local devuelve una ruta
+    // relativa que hay que completar con el dominio para que WhatsApp la resuelva.
+    const url = input.imageUrl.startsWith("http")
+      ? input.imageUrl
+      : `${siteUrl()}${input.imageUrl}`;
+    // Va última y sola: WhatsApp arma la previsualización con el último enlace
+    // del mensaje, así la foto se ve como miniatura en el chat.
+    lines.push("", url);
   }
   return lines.join("\n");
 }

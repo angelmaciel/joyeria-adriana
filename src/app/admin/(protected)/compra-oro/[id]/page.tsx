@@ -1,5 +1,5 @@
-import Image from "next/image";
 import { notFound } from "next/navigation";
+import { ReferencePhoto } from "@/components/reference-photo";
 import { ClipboardList, DollarSign, NotebookPen, Save } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { decrypt, decryptOptional } from "@/lib/crypto";
@@ -32,16 +32,7 @@ export default async function AdminCompraOroDetailPage({
           <span className="text-muted-foreground">Teléfono:</span> {decrypt(request.clientPhone)}
         </p>
         <p className="mt-2 whitespace-pre-line">{decrypt(request.description)}</p>
-        {request.referenceImageUrl && (
-          <Image
-            src={request.referenceImageUrl}
-            alt="Foto del oro enviada por el cliente"
-            width={400}
-            height={400}
-            unoptimized
-            className="mt-3 w-full max-w-xs rounded-lg object-cover"
-          />
-        )}
+        <ReferencePhoto url={request.referenceImageUrl} />
       </div>
 
       <form action={updateGoldPurchaseRequest} className="mt-6 flex flex-col gap-4">
