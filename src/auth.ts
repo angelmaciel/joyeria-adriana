@@ -12,6 +12,10 @@ class TooManyAttempts extends CredentialsSignin {
 }
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
+  // Fuera de Vercel, Auth.js no puede deducir la URL pública y rechaza el login
+  // con "There was a problem with the server configuration". Render siempre está
+  // detrás de su proxy, que fija el Host correcto, así que es seguro confiar en él.
+  trustHost: true,
   providers: [
     Credentials({
       credentials: {
