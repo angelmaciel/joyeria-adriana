@@ -55,6 +55,16 @@ export function esUrlDeCloudinary(url: string) {
   return url.startsWith("https://res.cloudinary.com/");
 }
 
+// Cloudinary transforma la imagen al vuelo según la URL, sin costo extra:
+//   f_auto  elige el mejor formato para cada navegador (WebP/AVIF)
+//   q_auto  baja la calidad hasta donde el ojo no lo nota
+//   w_...   limita el ancho, que es lo que más pesa en fotos de celular
+// Una foto de 4 MB suele quedar en ~150 KB sin diferencia visible.
+export function imagenOptimizada(url: string, ancho = 800) {
+  if (!esUrlDeCloudinary(url)) return url;
+  return url.replace("/upload/", `/upload/f_auto,q_auto,w_${ancho},c_limit/`);
+}
+
 // El public_id es la ruta después de /upload/v<version>/, sin la extensión.
 function publicIdDesdeUrl(url: string) {
   const match = url.match(/\/upload\/(?:v\d+\/)?(.+)\.[a-z0-9]+$/i);

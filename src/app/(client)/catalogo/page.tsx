@@ -3,6 +3,8 @@ import Image from "next/image";
 import { prisma } from "@/lib/prisma";
 import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { formatGuaranies } from "@/lib/utils";
+import { Gem } from "lucide-react";
+import { imagenOptimizada } from "@/lib/cloudinary";
 import { Badge } from "@/components/ui/badge";
 
 export default async function CatalogoPage({
@@ -42,9 +44,9 @@ export default async function CatalogoPage({
         {products.map((product, index) => (
           <Link key={product.id} href={`/producto/${product.slug}`}>
             <Card className="h-full transition-shadow hover:shadow-md">
-              {product.images[0] && (
+              {product.images[0] ? (
                 <Image
-                  src={product.images[0].url}
+                  src={imagenOptimizada(product.images[0].url, 400)}
                   alt={product.name}
                   width={400}
                   height={400}
@@ -52,6 +54,12 @@ export default async function CatalogoPage({
                   priority={index === 0}
                   className="aspect-square w-full object-cover"
                 />
+              ) : (
+                // Sin esto la tarjeta queda descuadrada respecto a las que sí
+                // tienen foto, y parece un error de carga.
+                <div className="flex aspect-square w-full items-center justify-center bg-muted/40">
+                  <Gem className="size-8 text-muted-foreground/40" />
+                </div>
               )}
               <CardContent className="gap-1">
                 <p className="text-xs text-muted-foreground">{product.category.name}</p>

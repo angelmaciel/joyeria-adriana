@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { ImageOff } from "lucide-react";
+import { imagenOptimizada } from "@/lib/cloudinary";
 
 // Las fotos guardadas en el disco de Render desaparecen en cada despliegue, así
 // que puede haber solicitudes viejas cuya ruta ya no resuelve. Se avisa en vez
@@ -14,7 +15,7 @@ export function ReferencePhoto({ url }: { url: string | null }) {
       <p className="mb-1.5 text-xs text-muted-foreground">Foto enviada por el cliente</p>
       <a href={url} target="_blank" rel="noopener noreferrer" className="inline-block">
         <Image
-          src={url}
+          src={imagenOptimizada(url, 700)}
           alt="Foto de referencia enviada por el cliente"
           width={600}
           height={600}

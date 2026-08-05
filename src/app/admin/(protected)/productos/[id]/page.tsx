@@ -11,6 +11,7 @@ import {
   RotateCcw,
 } from "lucide-react";
 import { prisma } from "@/lib/prisma";
+import { imagenOptimizada } from "@/lib/cloudinary";
 import { toggleProductActive, updateProduct } from "@/lib/actions";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -120,7 +121,7 @@ export default async function EditarProductoPage({
             {product.images.map((img) => (
               <label key={img.id} className="flex flex-col items-center gap-1 text-xs">
                 <Image
-                  src={img.url}
+                  src={imagenOptimizada(img.url, 200)}
                   alt=""
                   width={120}
                   height={120}

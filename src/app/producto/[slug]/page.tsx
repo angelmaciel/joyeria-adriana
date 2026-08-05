@@ -6,6 +6,7 @@ import { prisma } from "@/lib/prisma";
 import { Button } from "@/components/ui/button";
 import { buildProductWhatsAppMessage, buildWhatsAppLink } from "@/lib/whatsapp";
 import { formatGuaranies } from "@/lib/utils";
+import { imagenOptimizada } from "@/lib/cloudinary";
 
 async function getProduct(slug: string) {
   return prisma.product.findFirst({
@@ -58,7 +59,7 @@ export default async function ProductoPage({
           {product.images.map((image) => (
             <Image
               key={image.id}
-              src={image.url}
+              src={imagenOptimizada(image.url, 900)}
               alt={product.name}
               width={800}
               height={800}
