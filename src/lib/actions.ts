@@ -198,7 +198,7 @@ export async function updateServiceRequest(formData: FormData) {
 
   revalidatePath(`/admin/solicitudes/${id}`);
   revalidatePath("/admin/solicitudes");
-  redirect(`/admin/solicitudes/${id}`);
+  redirect("/admin/solicitudes?ok=solicitud_actualizada");
 }
 
 export async function updateGoldPurchaseRequest(formData: FormData) {
@@ -231,7 +231,7 @@ export async function updateGoldPurchaseRequest(formData: FormData) {
 
   revalidatePath(`/admin/compra-oro/${id}`);
   revalidatePath("/admin/compra-oro");
-  redirect(`/admin/compra-oro/${id}`);
+  redirect("/admin/compra-oro?ok=solicitud_actualizada");
 }
 
 async function uniqueSlug(name: string) {
@@ -272,7 +272,7 @@ export async function createProduct(formData: FormData) {
 
   revalidatePath("/admin/productos");
   revalidatePath("/catalogo");
-  redirect(`/admin/productos/${product.id}`);
+  redirect("/admin/productos?ok=producto_creado");
 }
 
 export async function updateProduct(formData: FormData) {
@@ -314,7 +314,7 @@ export async function updateProduct(formData: FormData) {
   revalidatePath(`/admin/productos/${id}`);
   revalidatePath("/admin/productos");
   revalidatePath("/catalogo");
-  redirect(`/admin/productos/${id}`);
+  redirect("/admin/productos?ok=producto_actualizado");
 }
 
 export async function toggleProductActive(formData: FormData) {
@@ -324,12 +324,15 @@ export async function toggleProductActive(formData: FormData) {
   const product = await prisma.product.findUnique({ where: { id } });
   if (!product) redirect("/admin/productos");
 
+  const ahoraActivo = !product.isActive;
   await prisma.product.update({
     where: { id },
-    data: { isActive: !product.isActive },
+    data: { isActive: ahoraActivo },
   });
 
   revalidatePath("/admin/productos");
   revalidatePath("/catalogo");
-  redirect("/admin/productos");
+  redirect(
+    `/admin/productos?ok=${ahoraActivo ? "producto_activado" : "producto_desactivado"}`
+  );
 }

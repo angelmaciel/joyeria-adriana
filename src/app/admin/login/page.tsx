@@ -26,7 +26,7 @@ async function login(formData: FormData) {
 export default async function AdminLoginPage({
   searchParams,
 }: PageProps<"/admin/login">) {
-  const { error, reset } = await searchParams;
+  const { error } = await searchParams;
 
   return (
     <div className="mx-auto flex w-full max-w-sm flex-1 flex-col justify-center px-4 py-16">
@@ -46,11 +46,6 @@ export default async function AdminLoginPage({
           </Label>
           <Input id="password" name="password" type="password" required />
         </div>
-        {reset && (
-          <p className="text-sm text-primary">
-            Contraseña actualizada. Ya podés ingresar.
-          </p>
-        )}
         {error && (
           <p className="text-sm text-destructive">Email o contraseña incorrectos.</p>
         )}

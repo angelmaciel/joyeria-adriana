@@ -108,5 +108,5 @@ export async function resetPassword(formData: FormData) {
     }),
   ]);
 
-  redirect("/admin/login?reset=1");
+  redirect("/admin/login?ok=password_actualizada");
 }
