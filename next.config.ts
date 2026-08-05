@@ -2,13 +2,21 @@ import type { NextConfig } from "next";
 
 const isDev = process.env.NODE_ENV === "development";
 
+// Todo origen del que se carguen imágenes tiene que estar en img-src, además de
+// en images.remotePatterns: si falta acá, el navegador bloquea la imagen aunque
+// la URL funcione perfecto (se ve el recuadro roto y no hay error de servidor).
+const ORIGENES_DE_IMAGENES = [
+  "https://res.cloudinary.com", // fotos de productos y de solicitudes
+  "https://placehold.co", // imágenes de ejemplo del catálogo inicial
+].join(" ");
+
 // 'unsafe-eval' solo en dev: lo necesita el hot reload de Turbopack.
 // 'unsafe-inline' en style-src es necesario para los estilos inline de Next/Tailwind.
 const csp = [
   "default-src 'self'",
   `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""}`,
   "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' data: blob: https://placehold.co",
+  `img-src 'self' data: blob: ${ORIGENES_DE_IMAGENES}`,
   "font-src 'self' data:",
   "connect-src 'self'" + (isDev ? " ws: http://localhost:*" : ""),
   "frame-ancestors 'none'",
