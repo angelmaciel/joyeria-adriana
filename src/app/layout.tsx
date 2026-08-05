@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Playfair_Display } from "next/font/google";
 import { SiteHeader } from "@/components/site-header";
+import { BUSINESS_NAME } from "@/lib/constants";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -22,8 +23,8 @@ const playfairDisplay = Playfair_Display({
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.SITE_URL ?? "http://localhost:3000"),
-  title: "Joyería Adriana",
-  description: "Catálogo, servicios y compra de oro de Joyería Adriana.",
+  title: BUSINESS_NAME,
+  description: `Catálogo, servicios y compra de oro de ${BUSINESS_NAME}.`,
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

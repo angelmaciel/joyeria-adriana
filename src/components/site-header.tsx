@@ -3,6 +3,7 @@ import { Gem, LogOut } from "lucide-react";
 import { auth } from "@/auth";
 import { exitClientMode, logoutAdmin } from "@/lib/actions";
 import { isClientMode } from "@/lib/client-mode";
+import { BUSINESS_NAME } from "@/lib/constants";
 import { BackButton } from "@/components/back-button";
 import { Button } from "@/components/ui/button";
 
@@ -19,8 +20,8 @@ export async function SiteHeader() {
           href={logoHref}
           className="flex items-center gap-1.5 px-1.5 font-semibold tracking-wide text-primary"
         >
-          <Gem className="size-4" />
-          Joyería Adriana
+          <Gem className="size-4 shrink-0" />
+          {BUSINESS_NAME}
         </Link>
       </div>
       {session?.user ? (

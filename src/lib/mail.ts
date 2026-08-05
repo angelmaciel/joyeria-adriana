@@ -1,4 +1,5 @@
 import nodemailer from "nodemailer";
+import { BUSINESS_NAME } from "@/lib/constants";
 
 function getTransport() {
   const host = process.env.SMTP_HOST;
@@ -30,7 +31,7 @@ export async function sendPasswordResetEmail(to: string, resetUrl: string) {
   await transport.sendMail({
     from: process.env.SMTP_FROM ?? process.env.SMTP_USER,
     to,
-    subject: "Recuperar contraseña — Joyería Adriana",
+    subject: `Recuperar contraseña — ${BUSINESS_NAME}`,
     text: `Para crear una nueva contraseña entrá en este enlace (vence en 1 hora):\n\n${resetUrl}\n\nSi no pediste esto, ignorá el mensaje.`,
     html: `
       <p>Recibimos un pedido para restablecer la contraseña de tu cuenta de administración.</p>

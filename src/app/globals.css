@@ -49,7 +49,7 @@
 }
 
 :root {
-  /* Negro y dorado — tema de marca de Joyería Adriana */
+  /* Negro y dorado — tema de marca del negocio */
   --background: oklch(0.13 0.012 75);
   --foreground: oklch(0.96 0.015 85);
   --card: oklch(0.18 0.015 75);

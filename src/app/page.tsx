@@ -2,12 +2,13 @@ import Link from "next/link";
 import { ShoppingBag, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { enterClientMode } from "@/lib/actions";
+import { BUSINESS_NAME } from "@/lib/constants";
 
 export default function Home() {
   return (
     <div className="flex flex-1 flex-col items-center justify-center gap-10 px-4 py-16 text-center">
       <div className="flex flex-col items-center gap-2">
-        <h1>Joyería Adriana</h1>
+        <h1>{BUSINESS_NAME}</h1>
         <p className="text-muted-foreground">¿Cómo querés ingresar?</p>
       </div>
       <div className="flex w-full max-w-xs flex-col gap-4">

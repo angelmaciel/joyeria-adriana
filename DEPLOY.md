@@ -23,9 +23,12 @@ Cargar en **Environment** del servicio (nunca en el repo):
 | `WHATSAPP_NUMBER` | `595900000000` |
 | `SMTP_HOST` | `smtp.gmail.com` |
 | `SMTP_PORT` | `587` |
-| `SMTP_USER` | `admin@ejemplo.com` |
-| `SMTP_PASSWORD` | La contraseña de aplicación de Gmail |
-| `SMTP_FROM` | `Joyería Adriana <admin@ejemplo.com>` |
+| `SMTP_USER` | La cuenta de Gmail que envía (la misma de tu `.env`) |
+| `SMTP_PASSWORD` | La contraseña de aplicación de esa cuenta |
+| `SMTP_FROM` | `Joyería y Relojería Adriana <la-misma-cuenta@gmail.com>` |
+
+> Gmail exige que `SMTP_FROM` use **la misma dirección** que `SMTP_USER`. Si no
+> coinciden, reescribe el remitente o rechaza el envío.
 
 Para generar claves nuevas:
 
