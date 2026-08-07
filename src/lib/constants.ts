@@ -2,6 +2,10 @@
 // la portada, el <title> y los emails.
 export const BUSINESS_NAME = "Joyería y Relojería Adriana";
 
+// La fabricación a medida tiene su propia tarjeta en el inicio y su propio
+// formulario, así que no se lista junto a los servicios de reparar/limpiar.
+export const CUSTOM_ORDER_SLUG = "fabricacion-a-medida";
+
 export const REQUEST_STATUSES = [
   "PENDIENTE",
   "COTIZADO",

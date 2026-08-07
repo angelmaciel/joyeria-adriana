@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ShoppingBag, Wrench, Coins, Hammer } from "lucide-react";
 import { Card, CardContent, CardTitle, CardDescription } from "@/components/ui/card";
+import { CUSTOM_ORDER_SLUG } from "@/lib/constants";
 
 const ACCIONES = [
   {
@@ -22,7 +23,7 @@ const ACCIONES = [
     icon: Coins,
   },
   {
-    href: "/servicios/solicitar/fabricacion-a-medida",
+    href: `/servicios/solicitar/${CUSTOM_ORDER_SLUG}`,
     title: "Fabricar a medida",
     description: "Diseñamos y fabricamos una pieza única para vos.",
     icon: Hammer,

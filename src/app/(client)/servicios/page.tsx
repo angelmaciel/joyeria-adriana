@@ -2,10 +2,11 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { Card, CardContent, CardTitle, CardDescription } from "@/components/ui/card";
 import { formatGuaranies } from "@/lib/utils";
+import { CUSTOM_ORDER_SLUG } from "@/lib/constants";
 
 export default async function ServiciosPage() {
   const serviceTypes = await prisma.serviceType.findMany({
-    where: { isActive: true },
+    where: { isActive: true, slug: { not: CUSTOM_ORDER_SLUG } },
     orderBy: { name: "asc" },
   });
 
