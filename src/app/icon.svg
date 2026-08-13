@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!--
+    Icono de la pestaña del navegador. Next lo detecta solo por el nombre
+    (src/app/icon.svg), no hace falta declararlo en el layout.
+
+    Diamante de talla brillante: mesa arriba, cintura y pabellón en punta, la
+    misma forma que el diamante de las pantallas de carga.
+
+    Va relleno y no de contorno porque a 16px —el tamaño real en la pestaña—
+    un trazo fino desaparece. Las facetas son líneas oscuras translúcidas
+    encima del relleno: se leen como volumen cuando hay lugar y se funden sin
+    ensuciar cuando no lo hay. El fondo es transparente, así que funciona en
+    barras claras y oscuras.
+  -->
+  <defs>
+    <linearGradient id="oro" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#e8c46a" />
+      <stop offset="0.45" stop-color="#c9a244" />
+      <stop offset="1" stop-color="#8f6c1e" />
+    </linearGradient>
+  </defs>
+
+  <path
+    d="M11 7 H21 L28 14 L16 28 L4 14 Z"
+    fill="url(#oro)"
+  />
+
+  <g stroke="#5c4408" stroke-opacity="0.38" stroke-width="0.9" fill="none" stroke-linejoin="round">
+    <path d="M4 14 H28" />
+    <path d="M11 7 L8.5 14" />
+    <path d="M21 7 L23.5 14" />
+    <path d="M8.5 14 L16 28" />
+    <path d="M23.5 14 L16 28" />
+  </g>
+
+  <path
+    d="M11 7 H21 L28 14 L16 28 L4 14 Z"
+    fill="none"
+    stroke="#6b4e07"
+    stroke-opacity="0.55"
+    stroke-width="1.1"
+    stroke-linejoin="round"
+  />
+</svg>
