@@ -11,12 +11,12 @@ export default async function ServiciosPage() {
   });
 
   return (
-    <div className="mx-auto w-full max-w-2xl px-4 py-8">
+    <div className="animate-fade-up mx-auto w-full max-w-2xl px-4 py-8">
       <h1 className="mb-6 text-center">Servicios</h1>
       <div className="flex flex-col gap-4">
         {serviceTypes.map((service) => (
           <Link key={service.id} href={`/servicios/solicitar/${service.slug}`}>
-            <Card className="transition-shadow hover:shadow-md">
+            <Card className="tarjeta-interactiva h-full">
               <CardContent className="gap-1">
                 <CardTitle>{service.name}</CardTitle>
                 <CardDescription>{service.description}</CardDescription>

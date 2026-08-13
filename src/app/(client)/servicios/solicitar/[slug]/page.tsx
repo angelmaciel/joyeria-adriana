@@ -3,7 +3,7 @@ import { User, Phone, Camera, MessageSquareText, MessageCircle } from "lucide-re
 import { FormError } from "@/components/form-error";
 import { prisma } from "@/lib/prisma";
 import { createServiceRequest } from "@/lib/actions";
-import { Button } from "@/components/ui/button";
+import { BotonEnviar } from "@/components/boton-enviar";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -21,7 +21,7 @@ export default async function SolicitarServicioPage({
   if (!serviceType) notFound();
 
   return (
-    <div className="mx-auto w-full max-w-md px-4 py-8">
+    <div className="animate-fade-up mx-auto w-full max-w-md px-4 py-8">
       <h1 className="text-center">{serviceType.name}</h1>
       <p className="mt-1 text-center text-muted-foreground">{serviceType.description}</p>
 
@@ -69,14 +69,10 @@ export default async function SolicitarServicioPage({
           </p>
         </div>
         <FormError error={error} />
-        <Button
-          type="submit"
-          size="lg"
-          className="mt-2 bg-[#25D366] text-white hover:bg-[#1ebe57]"
-        >
+        <BotonEnviar className="mt-2 bg-[#25D366] text-white hover:bg-[#1ebe57]">
           <MessageCircle />
           Enviar por WhatsApp
-        </Button>
+        </BotonEnviar>
       </form>
     </div>
   );

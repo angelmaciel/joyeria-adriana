@@ -1,3 +1,13 @@
+/* Orden de capas para la convivencia con Material UI mientras dura la
+   migración. Emotion inyecta los estilos de MUI en @layer mui (lo activa
+   enableCssLayer en src/components/mui-provider.tsx): queda por encima de base
+   —el preflight de Tailwind, que si no le pisaría fondos y bordes a los
+   componentes de Material— y por debajo de utilities, para poder seguir
+   ajustando un componente de MUI con una clase suelta.
+   Va antes del @import: las sentencias @layer son de las pocas reglas que el
+   CSS permite ahí, y la primera declaración es la que fija el orden. */
+@layer theme, base, mui, components, utilities;
+
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
@@ -7,7 +17,10 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-sans);
+  /* Apunta a la variable que define next/font en el <html>. Antes decía
+     var(--font-sans), que se referenciaba a sí misma: quedaba inválida y el
+     cuerpo del sitio caía en la fuente por defecto del navegador. */
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-geist-mono);
   --font-heading: var(--font-playfair), serif;
   --color-sidebar-ring: var(--sidebar-ring);
@@ -49,39 +62,72 @@
 }
 
 :root {
-  /* Negro y dorado — tema de marca del negocio */
-  --background: oklch(0.13 0.012 75);
-  --foreground: oklch(0.96 0.015 85);
-  --card: oklch(0.18 0.015 75);
-  --card-foreground: oklch(0.96 0.015 85);
-  --popover: oklch(0.18 0.015 75);
-  --popover-foreground: oklch(0.96 0.015 85);
-  --primary: oklch(0.78 0.14 85);
-  --primary-foreground: oklch(0.14 0.02 75);
-  --secondary: oklch(0.26 0.016 75);
-  --secondary-foreground: oklch(0.94 0.015 85);
-  --muted: oklch(0.22 0.013 75);
-  --muted-foreground: oklch(0.68 0.03 80);
-  --accent: oklch(0.3 0.03 80);
-  --accent-foreground: oklch(0.88 0.1 85);
-  --destructive: oklch(0.64 0.21 25);
-  --border: oklch(0.85 0.1 85 / 16%);
-  --input: oklch(0.85 0.1 85 / 14%);
-  --ring: oklch(0.78 0.14 85 / 55%);
-  --chart-1: oklch(0.78 0.14 85);
-  --chart-2: oklch(0.65 0.04 80);
-  --chart-3: oklch(0.52 0.03 80);
-  --chart-4: oklch(0.4 0.02 80);
-  --chart-5: oklch(0.3 0.02 80);
+  /* Blanco y dorado — tema de marca del negocio.
+     Los tonos están elegidos para pasar WCAG AA (4.5:1) en texto: el dorado es
+     oscuro a propósito, porque un oro claro sobre blanco no llega al contraste
+     mínimo ni como texto ni como fondo de botón con letra blanca.
+     Estos mismos valores se repiten en hex en src/lib/mui-theme.ts. */
+  --background: oklch(0.991 0.003 84.6); /* #fdfcfa */
+  --foreground: oklch(0.216 0.006 56); /* #1c1917 */
+  --card: oklch(1 0 89.9); /* #ffffff */
+  --card-foreground: oklch(0.216 0.006 56);
+  --popover: oklch(1 0 89.9);
+  --popover-foreground: oklch(0.216 0.006 56);
+  --primary: oklch(0.56 0.1 84.3); /* #906f23 — 4.68:1 con blanco encima */
+  --primary-foreground: oklch(1 0 89.9);
+  --secondary: oklch(0.959 0.01 87.5); /* #f4f1ea */
+  --secondary-foreground: oklch(0.374 0.009 67.6);
+  --muted: oklch(0.959 0.01 87.5);
+  --muted-foreground: oklch(0.502 0.018 67.4); /* #6b6259 — 5.82:1 */
+  --accent: oklch(0.956 0.026 87.9); /* #f8f0dd */
+  --accent-foreground: oklch(0.402 0.078 84.1);
+  --destructive: oklch(0.539 0.194 26.7); /* #c62828 */
+  --border: oklch(0.881 0.029 86.7); /* #e0d7c3 — decorativo, suave */
+  --input: oklch(0.65 0.053 89.3); /* #9c8e6a — 3.24:1, borde de campo perceptible */
+  --ring: oklch(0.56 0.1 84.3);
+  --chart-1: oklch(0.56 0.1 84.3);
+  --chart-2: oklch(0.65 0.08 84);
+  --chart-3: oklch(0.74 0.06 84);
+  --chart-4: oklch(0.82 0.04 84);
+  --chart-5: oklch(0.88 0.03 84);
   --radius: 0.625rem;
-  --sidebar: oklch(0.15 0.013 75);
-  --sidebar-foreground: oklch(0.94 0.015 85);
-  --sidebar-primary: oklch(0.78 0.14 85);
-  --sidebar-primary-foreground: oklch(0.14 0.02 75);
-  --sidebar-accent: oklch(0.26 0.016 75);
-  --sidebar-accent-foreground: oklch(0.94 0.015 85);
-  --sidebar-border: oklch(0.85 0.1 85 / 16%);
-  --sidebar-ring: oklch(0.78 0.14 85 / 55%);
+  --sidebar: oklch(0.978 0.006 86);
+  --sidebar-foreground: oklch(0.216 0.006 56);
+  --sidebar-primary: oklch(0.56 0.1 84.3);
+  --sidebar-primary-foreground: oklch(1 0 89.9);
+  --sidebar-accent: oklch(0.956 0.026 87.9);
+  --sidebar-accent-foreground: oklch(0.402 0.078 84.1);
+  --sidebar-border: oklch(0.881 0.029 86.7);
+  --sidebar-ring: oklch(0.56 0.1 84.3);
+}
+
+/* Curvas y animaciones compartidas. Las curvas nativas de CSS son demasiado
+   débiles para que el movimiento se lea; estas son las de referencia para UI. */
+@theme {
+  --ease-out-quint: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out-strong: cubic-bezier(0.77, 0, 0.175, 1);
+
+  --animate-fade-up: fade-up 220ms var(--ease-out-quint) both;
+  --animate-fade-soft: fade-soft 180ms var(--ease-out-quint) both;
+
+  @keyframes fade-up {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  @keyframes fade-soft {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
 }
 
 .dark {
@@ -129,6 +175,130 @@
     @apply font-sans;
   }
   h1 {
-    @apply font-heading text-3xl font-semibold tracking-wide text-primary italic;
+    @apply font-heading text-3xl font-semibold text-primary;
+  }
+}
+
+@layer components {
+  /* Levantada mínima al pasar el mouse por una tarjeta: es un gesto que se
+     repite muchas veces por sesión, así que tiene que ser rápido y casi
+     imperceptible. Solo transform y box-shadow (no disparan layout), y solo
+     donde hay un puntero de verdad: en touch, el tap dispara un hover falso
+     que deja la tarjeta levantada. */
+  @media (hover: hover) and (pointer: fine) {
+    .tarjeta-interactiva {
+      transition:
+        transform 160ms var(--ease-out-quint),
+        box-shadow 160ms var(--ease-out-quint);
+    }
+    .tarjeta-interactiva:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px -8px oklch(0.56 0.1 84.3 / 25%);
+    }
+
+    /* La foto se acerca apenas dentro de su marco recortado. */
+    .tarjeta-interactiva .tarjeta-foto {
+      transition: transform 320ms var(--ease-out-quint);
+    }
+    .tarjeta-interactiva:hover .tarjeta-foto {
+      transform: scale(1.06);
+    }
+
+    /* Panel que sube desde abajo con la info extra. Arranca corrido su propia
+       altura (100%), así no hay que saber cuánto mide. */
+    .tarjeta-revelado {
+      opacity: 0;
+      transform: translateY(100%);
+      transition:
+        opacity 220ms var(--ease-out-quint),
+        transform 220ms var(--ease-out-quint);
+    }
+    .tarjeta-interactiva:hover .tarjeta-revelado,
+    .tarjeta-interactiva:focus-within .tarjeta-revelado {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Anillo del cargador: rotación constante, por eso linear. */
+  .cargador-anillo {
+    transform-origin: center;
+    animation: girar 1.4s linear infinite;
+  }
+  .cargador-gema {
+    transform-origin: center;
+    animation: latir 2.4s var(--ease-in-out-strong) infinite;
+  }
+
+  /* Revelado al entrar en pantalla. Es una transición y no un keyframe para que
+     se pueda interrumpir si el usuario scrollea rápido de vuelta. */
+  .revelar {
+    opacity: 0;
+    transform: translateY(16px);
+    transition:
+      opacity 400ms var(--ease-out-quint),
+      transform 400ms var(--ease-out-quint);
+  }
+  .revelar-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes girar {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes latir {
+  0%,
+  100% {
+    opacity: 0.85;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+}
+
+/* Sin JavaScript el observador nunca agrega .revelar-visible y las secciones
+   quedarían invisibles para siempre. Con scripting deshabilitado se muestran. */
+@media (scripting: none) {
+  .revelar {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Menos movimiento no es cero movimiento: se conserva el desvanecimiento, que
+   ayuda a entender que algo apareció, y se saca el desplazamiento. */
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-up {
+    animation-name: fade-soft;
+  }
+  .tarjeta-interactiva:hover {
+    transform: none;
+  }
+  .tarjeta-interactiva:hover .tarjeta-foto {
+    transform: none;
+  }
+  /* El panel de hover sigue apareciendo (es información, no adorno) pero se
+     desvanece en lugar de deslizarse. */
+  .tarjeta-revelado {
+    transform: none;
+  }
+  /* Las secciones aparecen sin desplazarse. */
+  .revelar {
+    transform: none;
+  }
+  /* El anillo se mantiene: girando es como se entiende que algo está cargando.
+     Se afloja el ritmo y se saca el latido de la gema. */
+  .cargador-anillo {
+    animation-duration: 2.4s;
+  }
+  .cargador-gema {
+    animation: none;
+    opacity: 0.9;
   }
 }

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ShoppingBag, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { BotonEnviar } from "@/components/boton-enviar";
 import { enterClientMode } from "@/lib/actions";
 import { BUSINESS_NAME } from "@/lib/constants";
 
@@ -12,11 +13,14 @@ export default function Home() {
         <p className="text-muted-foreground">¿Cómo querés ingresar?</p>
       </div>
       <div className="flex w-full max-w-xs flex-col gap-4">
+        {/* "Soy cliente" corre una server action, así que la espera la cubre
+            BotonEnviar. "Administrador" es una navegación: esa la cubre el
+            loading.tsx de la raíz. */}
         <form action={enterClientMode}>
-          <Button type="submit" size="lg" className="w-full">
+          <BotonEnviar className="w-full">
             <ShoppingBag />
             Soy cliente
-          </Button>
+          </BotonEnviar>
         </form>
         <Button
           size="lg"

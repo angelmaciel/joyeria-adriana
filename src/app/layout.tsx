@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Playfair_Display } from "next/font/google";
 import { Suspense } from "react";
+import { MuiProvider } from "@/components/mui-provider";
 import { SiteHeader } from "@/components/site-header";
 import { FlashToast } from "@/components/flash-toast";
 import { Toaster } from "@/components/ui/sonner";
@@ -37,13 +38,15 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${geistSans.variable} ${geistMono.variable} ${playfairDisplay.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col">
-        <SiteHeader />
-        <div className="flex flex-1 flex-col">{children}</div>
-        {/* Suspense porque FlashToast lee searchParams en el cliente. */}
-        <Suspense>
-          <FlashToast />
-        </Suspense>
-        <Toaster position="top-center" richColors />
+        <MuiProvider>
+          <SiteHeader />
+          <div className="flex flex-1 flex-col">{children}</div>
+          {/* Suspense porque FlashToast lee searchParams en el cliente. */}
+          <Suspense>
+            <FlashToast />
+          </Suspense>
+          <Toaster position="top-center" richColors />
+        </MuiProvider>
       </body>
     </html>
   );

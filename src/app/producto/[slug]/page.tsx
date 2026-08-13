@@ -53,7 +53,7 @@ export default async function ProductoPage({
   );
 
   return (
-    <div className="mx-auto w-full max-w-4xl px-4 py-8">
+    <div className="animate-fade-up mx-auto w-full max-w-4xl px-4 py-8">
       <div className="grid gap-8 sm:grid-cols-2">
         <div className="grid gap-2">
           {product.images.map((image) => (

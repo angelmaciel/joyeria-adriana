@@ -32,12 +32,12 @@ const ACCIONES = [
 
 export default function InicioPage() {
   return (
-    <div className="mx-auto w-full max-w-3xl px-4 py-8">
+    <div className="animate-fade-up mx-auto w-full max-w-3xl px-4 py-8">
       <h1 className="mb-6 text-center">¿Qué necesitás?</h1>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         {ACCIONES.map((accion) => (
           <Link key={accion.href} href={accion.href}>
-            <Card className="h-full transition-shadow hover:shadow-md">
+            <Card className="tarjeta-interactiva h-full">
               <CardContent className="flex flex-col items-center gap-2 py-4 text-center">
                 <accion.icon className="size-10 text-primary" />
                 <CardTitle className="text-base">{accion.title}</CardTitle>
@@ -47,6 +47,15 @@ export default function InicioPage() {
           </Link>
         ))}
       </div>
+      <p className="text-muted-foreground mt-8 text-center text-sm">
+        ¿Querés conocernos?{" "}
+        <Link
+          href="/sobre-nosotros"
+          className="text-primary font-medium underline-offset-4 hover:underline"
+        >
+          Sobre nosotros
+        </Link>
+      </p>
     </div>
   );
 }
