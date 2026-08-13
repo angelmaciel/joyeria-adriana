@@ -2,7 +2,8 @@ import { notFound } from "next/navigation";
 import { ReferencePhoto } from "@/components/reference-photo";
 import { ClipboardList, DollarSign, NotebookPen, Save } from "lucide-react";
 import { prisma } from "@/lib/prisma";
-import { decrypt, decryptOptional } from "@/lib/crypto";
+import { decrypt, decryptOptional, esIlegible } from "@/lib/crypto";
+import { AvisoIlegible, ValorCifrado } from "@/components/dato-cifrado";
 import { updateGoldPurchaseRequest } from "@/lib/actions";
 import { REQUEST_STATUSES, REQUEST_STATUS_LABELS } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
@@ -20,18 +21,30 @@ export default async function AdminCompraOroDetailPage({
   const request = await prisma.goldPurchaseRequest.findUnique({ where: { id } });
   if (!request) notFound();
 
+  const nombre = decrypt(request.clientName);
+  const telefono = decrypt(request.clientPhone);
+  const descripcion = decrypt(request.description);
+  const notas = decryptOptional(request.adminNotes);
+  const hayIlegibles = [nombre, telefono, descripcion, notas].some(esIlegible);
+
   return (
     <div className="mx-auto max-w-lg">
       <h1>Compra de oro</h1>
 
+      {hayIlegibles && <AvisoIlegible />}
+
       <div className="mt-4 rounded-xl border p-4 text-sm">
         <p>
-          <span className="text-muted-foreground">Cliente:</span> {decrypt(request.clientName)}
+          <span className="text-muted-foreground">Cliente:</span>{" "}
+          <ValorCifrado>{nombre}</ValorCifrado>
         </p>
         <p>
-          <span className="text-muted-foreground">Teléfono:</span> {decrypt(request.clientPhone)}
+          <span className="text-muted-foreground">Teléfono:</span>{" "}
+          <ValorCifrado>{telefono}</ValorCifrado>
         </p>
-        <p className="mt-2 whitespace-pre-line">{decrypt(request.description)}</p>
+        <p className="mt-2 whitespace-pre-line">
+          <ValorCifrado>{descripcion}</ValorCifrado>
+        </p>
         <ReferencePhoto url={request.referenceImageUrl} />
       </div>
 
@@ -78,7 +91,9 @@ export default async function AdminCompraOroDetailPage({
             id="adminNotes"
             name="adminNotes"
             rows={3}
-            defaultValue={decryptOptional(request.adminNotes) ?? ""}
+            // Si las notas no se pudieron descifrar va vacío, nunca el aviso:
+            // guardar el formulario escribiría ese texto encima de las notas.
+            defaultValue={notas && !esIlegible(notas) ? notas : ""}
           />
         </div>
         {error && (

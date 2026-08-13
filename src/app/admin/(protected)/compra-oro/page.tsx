@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { decrypt } from "@/lib/crypto";
+import { ValorCifrado } from "@/components/dato-cifrado";
 import { Badge } from "@/components/ui/badge";
 import { REQUEST_STATUSES, REQUEST_STATUS_LABELS, type RequestStatus } from "@/lib/constants";
 
@@ -40,9 +41,12 @@ export default async function AdminCompraOroPage({
           <Link key={r.id} href={`/admin/compra-oro/${r.id}`}>
             <div className="flex items-center justify-between rounded-xl border p-4 hover:bg-muted/50">
               <div>
-                <p className="font-medium">{decrypt(r.clientName)}</p>
+                <p className="font-medium">
+                  <ValorCifrado>{decrypt(r.clientName)}</ValorCifrado>
+                </p>
                 <p className="text-sm text-muted-foreground">
-                  {decrypt(r.clientPhone)} · {r.createdAt.toLocaleDateString("es-PY")}
+                  <ValorCifrado>{decrypt(r.clientPhone)}</ValorCifrado> ·{" "}
+                  {r.createdAt.toLocaleDateString("es-PY")}
                 </p>
               </div>
               <Badge>{REQUEST_STATUS_LABELS[r.status as RequestStatus]}</Badge>
