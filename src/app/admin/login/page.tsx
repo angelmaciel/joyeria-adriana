@@ -1,64 +1,36 @@
 import Link from "next/link";
-import { redirect } from "next/navigation";
-import { AuthError } from "next-auth";
-import { Mail, Lock } from "lucide-react";
-import { signIn } from "@/auth";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-
-async function login(formData: FormData) {
-  "use server";
-  try {
-    await signIn("credentials", {
-      email: formData.get("email"),
-      password: formData.get("password"),
-      redirectTo: "/admin/dashboard",
-    });
-  } catch (error) {
-    if (error instanceof AuthError) {
-      redirect("/admin/login?error=1");
-    }
-    throw error;
-  }
-}
+import { CircleCheck } from "lucide-react";
+import { LoginForm } from "@/components/login-form";
 
 export default async function AdminLoginPage({
   searchParams,
 }: PageProps<"/admin/login">) {
-  const { error } = await searchParams;
+  const { ok } = await searchParams;
 
   return (
-    <div className="mx-auto flex w-full max-w-sm flex-1 flex-col justify-center px-4 py-16">
+    <div className="animate-fade-up mx-auto flex w-full max-w-sm flex-1 flex-col justify-center px-4 py-16">
       <h1 className="mb-6 text-center">Ingreso administrador</h1>
-      <form action={login} className="flex flex-col gap-4">
-        <div className="flex flex-col gap-1.5">
-          <Label htmlFor="email">
-            <Mail className="size-5 text-primary" />
-            Email
-          </Label>
-          <Input id="email" name="email" type="email" required autoFocus />
-        </div>
-        <div className="flex flex-col gap-1.5">
-          <Label htmlFor="password">
-            <Lock className="size-5 text-primary" />
-            Contraseña
-          </Label>
-          <Input id="password" name="password" type="password" required />
-        </div>
-        {error && (
-          <p className="text-sm text-destructive">Email o contraseña incorrectos.</p>
-        )}
-        <Button type="submit" className="mt-2">
-          Ingresar
-        </Button>
-        <Link
-          href="/admin/recuperar"
-          className="text-center text-sm text-muted-foreground hover:text-foreground hover:underline"
-        >
-          ¿Olvidaste tu contraseña?
-        </Link>
-      </form>
+
+      {/* resetPassword redirige acá con este parámetro; sin esto, cambiar la
+          contraseña dejaba a la persona en el login sin ninguna confirmación de
+          que había funcionado. */}
+      {ok === "password_actualizada" && (
+        <p className="border-primary/30 bg-accent/50 text-foreground mb-4 flex items-center gap-2 rounded-xl border p-3 text-sm">
+          <CircleCheck className="text-primary size-4 shrink-0" />
+          Tu contraseña se actualizó. Ingresá con la nueva.
+        </p>
+      )}
+
+      {/* El error del ingreso ya no viaja por la URL: lo maneja el formulario
+          para no perder lo que la persona escribió. */}
+      <LoginForm />
+
+      <Link
+        href="/admin/recuperar"
+        className="text-muted-foreground hover:text-foreground mt-4 text-center text-sm hover:underline"
+      >
+        ¿Olvidaste tu contraseña?
+      </Link>
     </div>
   );
 }

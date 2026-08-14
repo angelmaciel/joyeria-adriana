@@ -1,8 +1,10 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { AuthError } from "next-auth";
 import bcrypt from "bcryptjs";
 import { z } from "zod";
+import { signIn } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { sendPasswordResetEmail } from "@/lib/mail";
 import {
@@ -26,6 +28,49 @@ const newPasswordSchema = z
   });
 
 const FIFTEEN_MIN = 15 * 60 * 1000;
+
+export type EstadoLogin = { error: string } | null;
+
+/**
+ * Ingreso al panel.
+ *
+ * Devuelve el error en vez de redirigir a `?error=1` como antes. La redirección
+ * era una navegación completa: la página se volvía a renderizar de cero y la
+ * persona perdía el email que acababa de escribir, teniendo que tipearlo otra
+ * vez para corregir solo la contraseña.
+ *
+ * El límite de intentos vive en el provider de credenciales (`src/auth.ts`), no
+ * acá, así que sigue aplicándose igual.
+ */
+export async function iniciarSesion(
+  _anterior: EstadoLogin,
+  formData: FormData
+): Promise<EstadoLogin> {
+  try {
+    await signIn("credentials", {
+      email: formData.get("email"),
+      password: formData.get("password"),
+      redirectTo: "/admin/dashboard",
+    });
+  } catch (error) {
+    if (error instanceof AuthError) {
+      // TooManyAttempts extiende CredentialsSignin, así que sin mirar el código
+      // el bloqueo por intentos se confundía con una contraseña equivocada y la
+      // persona se quedaba dudando de su propia contraseña.
+      if ((error as { code?: string }).code === "too_many_attempts") {
+        return {
+          error:
+            "Demasiados intentos seguidos. Esperá unos minutos y probá de nuevo.",
+        };
+      }
+      return { error: "Email o contraseña incorrectos." };
+    }
+    // El éxito de signIn también llega acá, como NEXT_REDIRECT: hay que dejarlo pasar.
+    throw error;
+  }
+
+  return null;
+}
 
 export async function requestPasswordReset(formData: FormData) {
   const email = String(formData.get("email") ?? "").trim().toLowerCase();
