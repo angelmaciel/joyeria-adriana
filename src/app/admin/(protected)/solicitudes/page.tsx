@@ -1,64 +1,40 @@
-import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { decrypt } from "@/lib/crypto";
-import { ValorCifrado } from "@/components/dato-cifrado";
-import { Badge } from "@/components/ui/badge";
-import { REQUEST_STATUSES, REQUEST_STATUS_LABELS, type RequestStatus } from "@/lib/constants";
+import { TablaSolicitudes, type FilaSolicitud } from "@/components/tabla-solicitudes";
+import type { RequestStatus } from "@/lib/constants";
 
-export default async function AdminSolicitudesPage({
-  searchParams,
-}: PageProps<"/admin/solicitudes">) {
-  const { status } = await searchParams;
-  const filter =
-    typeof status === "string" && REQUEST_STATUSES.includes(status as RequestStatus)
-      ? (status as RequestStatus)
-      : undefined;
-
+export default async function AdminSolicitudesPage() {
   const requests = await prisma.serviceRequest.findMany({
-    where: filter ? { status: filter } : undefined,
     include: { serviceType: true },
     orderBy: { createdAt: "desc" },
   });
 
+  // El filtro por estado ya no viaja en la URL: la grilla filtra, ordena y
+  // busca del lado del cliente sobre el conjunto completo. Con el volumen de
+  // una joyeria eso es instantaneo y evita un viaje al servidor por cada clic.
+  const filas: FilaSolicitud[] = requests.map((r) => ({
+    id: r.id,
+    cliente: decrypt(r.clientName),
+    telefono: decrypt(r.clientPhone),
+    detalle: `${r.serviceType.name} — ${decrypt(r.description)}`,
+    estado: r.status as RequestStatus,
+    creada: r.createdAt.toISOString(),
+    precio: r.quotedPrice ? Number(r.quotedPrice) : null,
+  }));
+
   return (
     <div>
       <h1>Solicitudes de servicio</h1>
-
-      <div className="mt-4 flex flex-wrap gap-2">
-        <Link href="/admin/solicitudes">
-          <Badge variant={!filter ? "default" : "outline"}>Todas</Badge>
-        </Link>
-        {REQUEST_STATUSES.map((s) => (
-          <Link key={s} href={`/admin/solicitudes?status=${s}`}>
-            <Badge variant={filter === s ? "default" : "outline"}>
-              {REQUEST_STATUS_LABELS[s]}
-            </Badge>
-          </Link>
-        ))}
-      </div>
-
-      <div className="mt-4 flex flex-col gap-2">
-        {requests.map((r) => (
-          <Link key={r.id} href={`/admin/solicitudes/${r.id}`}>
-            <div className="flex items-center justify-between rounded-xl border p-4 hover:bg-muted/50">
-              <div>
-                <p className="font-medium">
-                  <ValorCifrado>{decrypt(r.clientName)}</ValorCifrado> —{" "}
-                  {r.serviceType.name}
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  <ValorCifrado>{decrypt(r.clientPhone)}</ValorCifrado> ·{" "}
-                  {r.createdAt.toLocaleDateString("es-PY")}
-                </p>
-              </div>
-              <Badge>{REQUEST_STATUS_LABELS[r.status as RequestStatus]}</Badge>
-            </div>
-          </Link>
-        ))}
-        {requests.length === 0 && (
-          <p className="text-muted-foreground">No hay solicitudes en esta vista.</p>
-        )}
-      </div>
+      <p className="text-muted-foreground mt-1 mb-4 text-sm">
+        {filas.length === 0
+          ? "Todavía no hay solicitudes."
+          : `${filas.length} ${filas.length === 1 ? "solicitud" : "solicitudes"}. Tocá una fila para abrirla.`}
+      </p>
+      <TablaSolicitudes
+        filas={filas}
+        rutaBase="/admin/solicitudes"
+        etiquetaPrecio="Cotizado"
+      />
     </div>
   );
 }

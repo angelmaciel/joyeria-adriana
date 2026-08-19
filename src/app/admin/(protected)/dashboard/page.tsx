@@ -1,26 +1,68 @@
-import Link from "next/link";
 import { ClipboardList, Coins, Package, TrendingUp, Eye } from "lucide-react";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
-import { REQUEST_STATUSES, REQUEST_STATUS_LABELS, type RequestStatus } from "@/lib/constants";
+import { REQUEST_STATUSES, type RequestStatus } from "@/lib/constants";
+import {
+  GraficoEstados,
+  GraficoPorServicio,
+  ProductosMasVistos,
+} from "@/components/graficos-dashboard";
 
-function startOfMonth() {
-  const now = new Date();
-  return new Date(now.getFullYear(), now.getMonth(), 1);
+function inicioDelMes() {
+  const hoy = new Date();
+  return new Date(hoy.getFullYear(), hoy.getMonth(), 1);
+}
+
+function Tarjeta({
+  icono: Icono,
+  etiqueta,
+  valor,
+}: {
+  icono: typeof ClipboardList;
+  etiqueta: string;
+  valor: number;
+}) {
+  return (
+    <div className="flex flex-col items-center gap-2 rounded-xl border p-4 text-center">
+      <Icono className="text-primary size-8" />
+      <p className="text-muted-foreground text-sm">{etiqueta}</p>
+      <p className="text-2xl font-semibold">{valor}</p>
+    </div>
+  );
+}
+
+function Panel({
+  icono: Icono,
+  titulo,
+  children,
+}: {
+  icono: typeof ClipboardList;
+  titulo: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div>
+      <h2 className="mb-3 flex items-center justify-center gap-1.5 text-lg font-medium">
+        <Icono className="text-primary size-5" />
+        {titulo}
+      </h2>
+      <div className="rounded-xl border p-2">{children}</div>
+    </div>
+  );
 }
 
 export default async function AdminDashboardPage() {
   const session = await auth();
 
   const [
-    pendingServiceRequests,
-    pendingGoldRequests,
-    activeProducts,
-    serviceStatusCounts,
-    goldStatusCounts,
-    topProducts,
-    serviceTypeCountsThisMonth,
-    serviceTypes,
+    serviciosPendientes,
+    oroPendientes,
+    productosActivos,
+    estadosServicio,
+    estadosOro,
+    masVistos,
+    porTipoEsteMes,
+    tiposDeServicio,
   ] = await Promise.all([
     prisma.serviceRequest.count({ where: { status: "PENDIENTE" } }),
     prisma.goldPurchaseRequest.count({ where: { status: "PENDIENTE" } }),
@@ -35,103 +77,62 @@ export default async function AdminDashboardPage() {
     prisma.serviceRequest.groupBy({
       by: ["serviceTypeId"],
       _count: true,
-      where: { createdAt: { gte: startOfMonth() } },
+      where: { createdAt: { gte: inicioDelMes() } },
     }),
     prisma.serviceType.findMany(),
   ]);
 
-  const statusTotals = Object.fromEntries(
-    REQUEST_STATUSES.map((s) => [
-      s,
-      (serviceStatusCounts.find((c) => c.status === s)?._count ?? 0) +
-        (goldStatusCounts.find((c) => c.status === s)?._count ?? 0),
-    ])
-  ) as Record<RequestStatus, number>;
+  // Los dos tipos de solicitud se suman: al operador le importa cuanto trabajo
+  // hay en cada estado, no de que formulario vino.
+  const porEstado = REQUEST_STATUSES.map((estado) => ({
+    estado: estado as RequestStatus,
+    total:
+      (estadosServicio.find((c) => c.status === estado)?._count ?? 0) +
+      (estadosOro.find((c) => c.status === estado)?._count ?? 0),
+  }));
 
-  const serviceTypeNames = new Map(serviceTypes.map((s) => [s.id, s.name]));
+  const nombrePorId = new Map(tiposDeServicio.map((s) => [s.id, s.name]));
+  const porServicio = porTipoEsteMes.map((c) => ({
+    servicio: nombrePorId.get(c.serviceTypeId) ?? "Sin tipo",
+    total: c._count,
+  }));
 
   return (
     <div>
       <h1 className="text-center">Panel de administración</h1>
-      <p className="mt-1 text-center text-muted-foreground">
+      <p className="text-muted-foreground mt-1 text-center">
         Bienvenida, {session?.user?.email}.
       </p>
 
       <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <div className="flex flex-col items-center gap-2 rounded-xl border p-4 text-center">
-          <ClipboardList className="size-8 text-primary" />
-          <p className="text-sm text-muted-foreground">Solicitudes de servicio pendientes</p>
-          <p className="text-2xl font-semibold">{pendingServiceRequests}</p>
-        </div>
-        <div className="flex flex-col items-center gap-2 rounded-xl border p-4 text-center">
-          <Coins className="size-8 text-primary" />
-          <p className="text-sm text-muted-foreground">Compras de oro pendientes</p>
-          <p className="text-2xl font-semibold">{pendingGoldRequests}</p>
-        </div>
-        <div className="flex flex-col items-center gap-2 rounded-xl border p-4 text-center">
-          <Package className="size-8 text-primary" />
-          <p className="text-sm text-muted-foreground">Productos activos</p>
-          <p className="text-2xl font-semibold">{activeProducts}</p>
-        </div>
+        <Tarjeta
+          icono={ClipboardList}
+          etiqueta="Solicitudes de servicio pendientes"
+          valor={serviciosPendientes}
+        />
+        <Tarjeta
+          icono={Coins}
+          etiqueta="Compras de oro pendientes"
+          valor={oroPendientes}
+        />
+        <Tarjeta icono={Package} etiqueta="Productos activos" valor={productosActivos} />
       </div>
 
       <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <div>
-          <h2 className="mb-3 flex items-center justify-center gap-1.5 text-lg font-medium">
-            <ClipboardList className="size-5 text-primary" />
-            Solicitudes por estado
-          </h2>
-          <div className="flex flex-col gap-2 rounded-xl border p-4">
-            {REQUEST_STATUSES.map((s) => (
-              <div key={s} className="flex items-center justify-between text-sm">
-                <span className="text-muted-foreground">{REQUEST_STATUS_LABELS[s]}</span>
-                <span className="font-medium">{statusTotals[s]}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div>
-          <h2 className="mb-3 flex items-center justify-center gap-1.5 text-lg font-medium">
-            <TrendingUp className="size-5 text-primary" />
-            Solicitudes de servicio este mes
-          </h2>
-          <div className="flex flex-col gap-2 rounded-xl border p-4">
-            {serviceTypeCountsThisMonth.length === 0 && (
-              <p className="text-sm text-muted-foreground">Todavía no hay solicitudes este mes.</p>
-            )}
-            {serviceTypeCountsThisMonth.map((c) => (
-              <div key={c.serviceTypeId} className="flex items-center justify-between text-sm">
-                <span className="text-muted-foreground">
-                  {serviceTypeNames.get(c.serviceTypeId) ?? "—"}
-                </span>
-                <span className="font-medium">{c._count}</span>
-              </div>
-            ))}
-          </div>
-        </div>
+        <Panel icono={ClipboardList} titulo="Solicitudes por estado">
+          <GraficoEstados datos={porEstado} />
+        </Panel>
+        <Panel icono={TrendingUp} titulo="Servicios pedidos este mes">
+          <GraficoPorServicio datos={porServicio} />
+        </Panel>
       </div>
 
       <div className="mt-8">
-        <h2 className="mb-3 flex items-center justify-center gap-1.5 text-lg font-medium">
-          <Eye className="size-5 text-primary" />
-          Productos más vistos
-        </h2>
-        <div className="flex flex-col gap-2 rounded-xl border p-4">
-          {topProducts.length === 0 && (
-            <p className="text-sm text-muted-foreground">Todavía no hay productos activos.</p>
-          )}
-          {topProducts.map((p) => (
-            <Link
-              key={p.id}
-              href={`/admin/productos/${p.id}`}
-              className="flex items-center justify-between text-sm hover:underline"
-            >
-              <span>{p.name}</span>
-              <span className="font-medium text-muted-foreground">{p.viewCount} vistas</span>
-            </Link>
-          ))}
-        </div>
+        <Panel icono={Eye} titulo="Productos más vistos">
+          <ProductosMasVistos
+            datos={masVistos.map((p) => ({ nombre: p.name, vistas: p.viewCount }))}
+          />
+        </Panel>
       </div>
     </div>
   );

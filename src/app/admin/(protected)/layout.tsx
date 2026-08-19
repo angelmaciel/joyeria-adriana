@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { LayoutDashboard, Package, ClipboardList, Coins } from "lucide-react";
 import { auth } from "@/auth";
+import { MuiAdminProvider } from "@/components/mui-admin-provider";
 
 const NAV = [
   { href: "/admin/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -32,7 +33,7 @@ export default async function AdminProtectedLayout({
           </Link>
         ))}
       </nav>
-      {children}
+      <MuiAdminProvider>{children}</MuiAdminProvider>
     </div>
   );
 }
