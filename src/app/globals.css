@@ -73,7 +73,7 @@
   --card-foreground: oklch(0.216 0.006 56);
   --popover: oklch(1 0 89.9);
   --popover-foreground: oklch(0.216 0.006 56);
-  --primary: oklch(0.5 0.2 264); /* PRUEBA DE DESPLIEGUE - revertir. Original: #906f23 — 4.68:1 con blanco encima */
+  --primary: oklch(0.56 0.1 84.3); /* #906f23 — 4.68:1 con blanco encima */
   --primary-foreground: oklch(1 0 89.9);
   --secondary: oklch(0.959 0.01 87.5); /* #f4f1ea */
   --secondary-foreground: oklch(0.374 0.009 67.6);
