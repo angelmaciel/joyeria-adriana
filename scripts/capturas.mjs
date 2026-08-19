@@ -59,6 +59,33 @@ async function esperarPintado(page) {
   await new Promise((r) => setTimeout(r, 700));
 }
 
+/**
+ * Reemplaza las fotos subidas por un marcador neutro.
+ *
+ * Las del catalogo de ejemplo vienen de placehold.co y se dejan como estan; las
+ * demas son fotos reales cargadas por el negocio, y varias muestran personas.
+ * Ya estan publicas en el sitio, pero un README es otra distribucion: quien
+ * clona el repositorio se lleva las imagenes puestas.
+ */
+async function neutralizarFotos(page) {
+  await page.evaluate(() => {
+    const gris =
+      "data:image/svg+xml;utf8," +
+      encodeURIComponent(
+        '<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400">' +
+          '<rect width="400" height="400" fill="#e4e0d8"/>' +
+          '<text x="200" y="210" font-family="system-ui,sans-serif" font-size="26"' +
+          ' fill="#a9a294" text-anchor="middle">Foto del producto</text></svg>'
+      );
+    for (const img of document.images) {
+      if (!/placehold\.co/.test(img.currentSrc || img.src)) {
+        img.srcset = "";
+        img.src = gris;
+      }
+    }
+  });
+}
+
 /** Reemplaza cualquier email visible por uno de ejemplo, antes de la foto. */
 async function ocultarDatosPersonales(page) {
   await page.evaluate((falso) => {
@@ -91,7 +118,10 @@ const DEL_PANEL = [
 
 async function capturar(page, archivo, completa) {
   await esperarPintado(page);
+  await neutralizarFotos(page);
   await ocultarDatosPersonales(page);
+  // Las imagenes cambiadas tardan un frame en pintarse.
+  await new Promise((r) => setTimeout(r, 250));
   const destino = path.join(SALIDA, `${archivo}.png`);
   await page.screenshot({ path: destino, fullPage: completa });
   console.log(`  ${destino}`);

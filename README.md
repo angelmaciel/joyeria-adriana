@@ -168,7 +168,7 @@ docs/capturas/         Capturas del README
 ## Más
 
 - [DEPLOY.md](DEPLOY.md) — despliegue en Render y variables de entorno
-- [CONVENCIONES.md](CONVENCIONES.md) — convenciones internas y el porqué de cada regla
+- [docs/CONVENCIONES.md](docs/CONVENCIONES.md) — convenciones internas y el porqué de cada regla
 
 ## Licencia
 

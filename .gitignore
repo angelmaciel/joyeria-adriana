@@ -30,12 +30,6 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# configuración local de editores
-/.cache-tools
-/.cache-local
-/.cache-editor
-/tools-lock.json
-
 # env files — los secretos reales nunca se versionan.
 .env*
 # ...salvo la plantilla sin valores, que sí debe estar en el repo.
@@ -58,4 +52,3 @@ next-env.d.ts
 
 # fotos subidas localmente (interino hasta wirear Cloudinary/Supabase - no persiste en deploy)
 /public/uploads
-
