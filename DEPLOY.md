@@ -20,12 +20,12 @@ Cargar en **Environment** del servicio (nunca en el repo):
 | `AUTH_SECRET` | **Generar una nueva** (ver abajo) — no reusar la de desarrollo |
 | `ENCRYPTION_KEY` | **Generar una nueva** — ⚠️ ver advertencia |
 | `SITE_URL` | La URL pública final, ej. `https://joyeria-adriana.onrender.com` |
-| `WHATSAPP_NUMBER` | `595900000000` |
+| `WHATSAPP_NUMBER` | El WhatsApp del negocio, formato E.164 sin `+` |
 | `SMTP_HOST` | `smtp.gmail.com` |
 | `SMTP_PORT` | `587` |
 | `SMTP_USER` | La cuenta de Gmail que envía (la misma de tu `.env`) |
 | `SMTP_PASSWORD` | La contraseña de aplicación de esa cuenta |
-| `SMTP_FROM` | `Joyería y Relojería Adriana <la-misma-cuenta@gmail.com>` |
+| `SMTP_FROM` | `Joyería y Relojería Adriana <la-misma-cuenta-que-SMTP_USER>` |
 
 > Gmail exige que `SMTP_FROM` use **la misma dirección** que `SMTP_USER`. Si no
 > coinciden, reescribe el remitente o rechaza el envío.
@@ -45,11 +45,12 @@ node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"
 1. **`SITE_URL`**: al crear el servicio recién sabés la URL final. Cargarla y redesplegar.
    De esto depende que el link de la foto en el mensaje de WhatsApp le abra al negocio.
 2. **Los datos ya están cargados.** La base de Prisma Postgres se sembró desde local
-   (categorías, productos de ejemplo, servicios y la cuenta de Adriana), y Render se
+   (categorías, productos de ejemplo y servicios), y Render se
    conecta a esa misma base. No hace falta correr el seed — lo cual es importante
    porque **el plan free de Render no da acceso a consola**.
-3. **Cambiar la contraseña de Adriana**: entrar a `/admin/login` → "¿Olvidaste tu
-   contraseña?". La inicial (`REDACTADO`) es solo un placeholder.
+3. **Crear la cuenta de administración.** El seed la crea solo si `SEED_ADMIN_EMAIL`
+   y `SEED_ADMIN_PASSWORD` están definidas en el entorno desde el que se corre.
+   Nunca dejar esas variables cargadas en un entorno compartido después de usarlas.
 
 ## Pendiente: fotos
 

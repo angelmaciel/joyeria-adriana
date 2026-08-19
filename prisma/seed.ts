@@ -89,22 +89,37 @@ async function main() {
     await prisma.serviceType.upsert({ where: { slug: s.slug }, update: {}, create: s });
   }
 
-  // Cuenta real de la dueña. La contraseña inicial debe cambiarse desde
-  // "¿Olvidaste tu contraseña?" apenas se configure el SMTP.
-  const adrianaEmail = "admin@ejemplo.com";
+  // La cuenta de administración sale del entorno, nunca del código: este
+  // archivo se versiona, y tener acá el email y la contraseña equivale a
+  // publicar un par de credenciales del panel en un repositorio.
+  const adminEmail = process.env.SEED_ADMIN_EMAIL;
+  const adminPassword = process.env.SEED_ADMIN_PASSWORD;
+  const adminName = process.env.SEED_ADMIN_NAME ?? "Administración";
+
+  if (!adminEmail || !adminPassword) {
+    console.log(
+      "Sin SEED_ADMIN_EMAIL y SEED_ADMIN_PASSWORD: no se crea cuenta de administración."
+    );
+    console.log("Catálogo y servicios cargados igual.");
+    return;
+  }
+
+  if (adminPassword.length < 12) {
+    throw new Error("SEED_ADMIN_PASSWORD debe tener al menos 12 caracteres.");
+  }
+
   await prisma.adminUser.upsert({
-    where: { email: adrianaEmail },
-    update: { name: "Administración" },
+    where: { email: adminEmail },
+    update: { name: adminName },
     create: {
-      name: "Administración",
-      email: adrianaEmail,
-      passwordHash: await bcrypt.hash("REDACTADO", 12),
+      name: adminName,
+      email: adminEmail,
+      passwordHash: await bcrypt.hash(adminPassword, 12),
     },
   });
 
-
   console.log("Seed completado.");
-  console.log(`Admin -> ${adrianaEmail}`);
+  console.log(`Cuenta de administración lista para ${adminEmail}.`);
 }
 
 main()
