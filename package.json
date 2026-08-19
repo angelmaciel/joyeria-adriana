@@ -10,7 +10,8 @@
     "postinstall": "prisma generate",
     "db:seed": "prisma db seed",
     "db:migrate": "prisma migrate dev",
-    "check:key": "tsx --env-file=.env scripts/verificar-clave.ts"
+    "check:key": "tsx --env-file=.env scripts/verificar-clave.ts",
+    "capturas": "node --env-file-if-exists=.env scripts/capturas.mjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.7.0",
@@ -54,6 +55,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.3.0",
     "prisma": "^7.9.1",
+    "puppeteer-core": "^25.8.0",
     "tailwindcss": "^4",
     "tsx": "^4.23.6",
     "typescript": "^5"
