@@ -1,5 +1,9 @@
 import { User, Phone, Camera, MessageSquareText, MessageCircle } from "lucide-react";
-import { FormError } from "@/components/form-error";
+import {
+  FormError,
+  esErrorDeFoto,
+  ID_ERROR_FORMULARIO,
+} from "@/components/form-error";
 import { MAX_UPLOAD_MB } from "@/lib/uploads";
 import { createGoldPurchaseRequest } from "@/lib/actions";
 import { BotonEnviar } from "@/components/boton-enviar";
@@ -11,6 +15,7 @@ export default async function VenderOroPage({
   searchParams,
 }: PageProps<"/vender-oro">) {
   const { error } = await searchParams;
+  const fotoRechazada = esErrorDeFoto(error);
 
   return (
     <div className="animate-fade-up mx-auto w-full max-w-md px-4 py-8">
@@ -28,14 +33,27 @@ export default async function VenderOroPage({
             <User className="size-5 text-primary" />
             Nombre
           </Label>
-          <Input id="clientName" name="clientName" required minLength={2} />
+          <Input
+            id="clientName"
+            name="clientName"
+            autoComplete="name"
+            required
+            minLength={2}
+          />
         </div>
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="clientPhone">
             <Phone className="size-5 text-primary" />
             Teléfono
           </Label>
-          <Input id="clientPhone" name="clientPhone" required minLength={6} />
+          <Input
+            id="clientPhone"
+            name="clientPhone"
+            type="tel"
+            autoComplete="tel"
+            required
+            minLength={6}
+          />
         </div>
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="description">
@@ -54,9 +72,15 @@ export default async function VenderOroPage({
             name="referenceImage"
             type="file"
             accept="image/*"
+            aria-invalid={fotoRechazada || undefined}
+            aria-describedby={
+              fotoRechazada
+                ? `ayuda-foto ${ID_ERROR_FORMULARIO}`
+                : "ayuda-foto"
+            }
             className="text-sm file:mr-3 file:rounded-lg file:border-0 file:bg-secondary file:px-3 file:py-1.5 file:text-sm file:font-medium"
           />
-          <p className="text-xs text-muted-foreground">
+          <p id="ayuda-foto" className="text-xs text-muted-foreground">
             Sacale una foto a la pieza — se envía junto con el mensaje (hasta {MAX_UPLOAD_MB} MB).
           </p>
         </div>
