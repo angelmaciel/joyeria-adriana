@@ -1,4 +1,4 @@
-import { Skeleton } from "@/components/ui/skeleton";
+import Skeleton from "@mui/material/Skeleton";
 import { PantallaCargando } from "@/components/pantalla-cargando";
 
 // Next muestra esto mientras la ficha de producto resuelve su consulta.
@@ -14,17 +14,17 @@ export default function CargandoProducto() {
     <div className="animate-fade-soft relative flex-1 [animation-delay:120ms]">
       <div aria-hidden className="mx-auto w-full max-w-4xl px-4 py-8">
         <div className="grid gap-8 sm:grid-cols-2">
-          <Skeleton className="aspect-square w-full rounded-xl" />
+          <Skeleton variant="rectangular" className="aspect-square w-full rounded-xl" />
           <div className="flex flex-col gap-3">
-            <Skeleton className="h-4 w-24" />
-            <Skeleton className="h-8 w-3/4" />
-            <Skeleton className="h-6 w-32" />
+            <Skeleton variant="rectangular" className="h-4 w-24 rounded-md" />
+            <Skeleton variant="rectangular" className="h-8 w-3/4 rounded-md" />
+            <Skeleton variant="rectangular" className="h-6 w-32 rounded-md" />
             <div className="mt-2 flex flex-col gap-2">
-              <Skeleton className="h-4 w-full" />
-              <Skeleton className="h-4 w-full" />
-              <Skeleton className="h-4 w-2/3" />
+              <Skeleton variant="rectangular" className="h-4 w-full rounded-md" />
+              <Skeleton variant="rectangular" className="h-4 w-full rounded-md" />
+              <Skeleton variant="rectangular" className="h-4 w-2/3 rounded-md" />
             </div>
-            <Skeleton className="mt-4 h-11 w-full rounded-lg" />
+            <Skeleton variant="rectangular" className="mt-4 h-11 w-full rounded-lg" />
           </div>
         </div>
       </div>

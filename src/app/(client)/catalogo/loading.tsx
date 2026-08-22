@@ -1,4 +1,4 @@
-import { Skeleton } from "@/components/ui/skeleton";
+import Skeleton from "@mui/material/Skeleton";
 import { PantallaCargando } from "@/components/pantalla-cargando";
 
 // Mismo criterio que en la ficha de producto: esqueleto atrás, difuminado por
@@ -11,16 +11,16 @@ export default function CargandoCatalogo() {
         <h1 className="mb-4 text-center">Catálogo</h1>
         <div className="mb-6 flex flex-wrap justify-center gap-2">
           {Array.from({ length: 4 }).map((_, i) => (
-            <Skeleton key={i} className="h-5 w-20 rounded-4xl" />
+            <Skeleton key={i} variant="rectangular" className="h-5 w-20 rounded-4xl" />
           ))}
         </div>
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
           {Array.from({ length: 8 }).map((_, i) => (
             <div key={i} className="flex flex-col gap-2">
-              <Skeleton className="aspect-square w-full rounded-xl" />
-              <Skeleton className="h-3 w-16" />
-              <Skeleton className="h-4 w-3/4" />
-              <Skeleton className="h-4 w-24" />
+              <Skeleton variant="rectangular" className="aspect-square w-full rounded-xl" />
+              <Skeleton variant="rectangular" className="h-3 w-16 rounded-md" />
+              <Skeleton variant="rectangular" className="h-4 w-3/4 rounded-md" />
+              <Skeleton variant="rectangular" className="h-4 w-24 rounded-md" />
             </div>
           ))}
         </div>

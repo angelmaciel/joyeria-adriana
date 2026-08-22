@@ -1,14 +1,16 @@
 import { Suspense } from "react";
-import Link from "next/link";
 import Image from "next/image";
+import Card from "@mui/material/Card";
+import CardActionArea from "@mui/material/CardActionArea";
+import CardContent from "@mui/material/CardContent";
+import Skeleton from "@mui/material/Skeleton";
+import Typography from "@mui/material/Typography";
 import { prisma } from "@/lib/prisma";
-import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { formatGuaranies } from "@/lib/utils";
 import { Eye, Gem } from "lucide-react";
 import { imagenOptimizada } from "@/lib/cloudinary";
-import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
 import { PantallaCargando } from "@/components/pantalla-cargando";
+import { ChipCategoria } from "@/components/chip-categoria";
 
 // La grilla vive aparte para poder envolverla sola en un Suspense: al cambiar
 // de categoría se recarga esto y nada más. El título y los filtros no dependen
@@ -36,64 +38,68 @@ async function GrillaProductos({ categoriaSlug }: { categoriaSlug?: string }) {
   return (
     <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
       {products.map((product, index) => (
-        <Link
+        // La entrada la anima este div y el hover la Card: son dos elementos
+        // distintos, así los dos transform no se pisan.
+        <div
           key={product.id}
-          href={`/producto/${product.slug}`}
           className="animate-fade-up"
           // El escalonado se corta en la octava tarjeta: con un catálogo
           // largo, seguir sumando retardo dejaría las últimas apareciendo
           // segundos después de que la página ya se ve cargada.
           style={{ animationDelay: `${Math.min(index, 7) * 40}ms` }}
         >
-          {/* La entrada la anima el Link y el hover la Card, así los dos
-              transform no se pisan.
-              pt-0 porque Card solo saca el padding de arriba cuando un <img>
-              es su primer hijo, y acá la foto va envuelta. */}
-          <Card className="tarjeta-interactiva h-full pt-0">
-            <div className="relative aspect-square w-full overflow-hidden">
-              {product.images[0] ? (
-                <Image
-                  src={imagenOptimizada(product.images[0].url, 400)}
-                  alt={product.name}
-                  width={400}
-                  height={400}
-                  unoptimized
-                  priority={index === 0}
-                  className="tarjeta-foto size-full object-cover"
-                />
-              ) : (
-                // Sin esto la tarjeta queda descuadrada respecto a las que sí
-                // tienen foto, y parece un error de carga.
-                <div className="bg-muted/40 flex size-full items-center justify-center">
-                  <Gem className="text-muted-foreground/40 size-8" />
+          <Card className="tarjeta-interactiva h-full">
+            <CardActionArea
+              href={`/producto/${product.slug}`}
+              className="flex h-full flex-col items-stretch"
+            >
+              <div className="relative aspect-square w-full overflow-hidden">
+                {product.images[0] ? (
+                  <Image
+                    src={imagenOptimizada(product.images[0].url, 400)}
+                    alt={product.name}
+                    width={400}
+                    height={400}
+                    unoptimized
+                    priority={index === 0}
+                    className="tarjeta-foto size-full object-cover"
+                  />
+                ) : (
+                  // Sin esto la tarjeta queda descuadrada respecto a las que sí
+                  // tienen foto, y parece un error de carga.
+                  <div className="bg-muted/40 flex size-full items-center justify-center">
+                    <Gem className="text-muted-foreground/40 size-8" />
+                  </div>
+                )}
+                {/* Sube al pasar el cursor. aria-hidden porque no agrega nada
+                    que un lector de pantalla no tenga ya: la tarjeta entera es
+                    la acción, y el nombre del producto está abajo. */}
+                <div
+                  aria-hidden
+                  className="tarjeta-revelado bg-primary/90 text-primary-foreground absolute inset-x-0 bottom-0 flex items-center justify-center gap-1.5 py-2 text-sm font-medium"
+                >
+                  <Eye className="size-4" />
+                  Ver detalle
                 </div>
-              )}
-              {/* Sube al pasar el cursor. aria-hidden porque no agrega nada
-                  que un lector de pantalla no tenga ya: el Link entero es la
-                  acción, y el nombre del producto está abajo. */}
-              <div
-                aria-hidden
-                className="tarjeta-revelado bg-primary/90 text-primary-foreground absolute inset-x-0 bottom-0 flex items-center justify-center gap-1.5 py-2 text-sm font-medium"
-              >
-                <Eye className="size-4" />
-                Ver detalle
               </div>
-            </div>
-            <CardContent className="gap-1">
-              <p className="text-muted-foreground text-xs">
-                {product.category.name}
-              </p>
-              <CardTitle>{product.name}</CardTitle>
-              {product.priceVisible && product.price != null ? (
-                <p className="font-medium">{formatGuaranies(product.price)}</p>
-              ) : (
-                <p className="text-muted-foreground text-sm">
-                  Consultar precio
+              <CardContent className="flex w-full flex-col gap-1 p-3">
+                <p className="text-muted-foreground text-xs">
+                  {product.category.name}
                 </p>
-              )}
-            </CardContent>
+                <Typography variant="subtitle1" component="h2">
+                  {product.name}
+                </Typography>
+                {product.priceVisible && product.price != null ? (
+                  <p className="font-medium">{formatGuaranies(product.price)}</p>
+                ) : (
+                  <p className="text-muted-foreground text-sm">
+                    Consultar precio
+                  </p>
+                )}
+              </CardContent>
+            </CardActionArea>
           </Card>
-        </Link>
+        </div>
       ))}
     </div>
   );
@@ -110,10 +116,10 @@ function CargandoGrilla() {
       >
         {Array.from({ length: 8 }).map((_, i) => (
           <div key={i} className="flex flex-col gap-2">
-            <Skeleton className="aspect-square w-full rounded-xl" />
-            <Skeleton className="h-3 w-16" />
-            <Skeleton className="h-4 w-3/4" />
-            <Skeleton className="h-4 w-24" />
+            <Skeleton variant="rectangular" className="aspect-square w-full rounded-xl" />
+            <Skeleton variant="rectangular" className="h-3 w-16 rounded-md" />
+            <Skeleton variant="rectangular" className="h-4 w-3/4 rounded-md" />
+            <Skeleton variant="rectangular" className="h-4 w-24 rounded-md" />
           </div>
         ))}
       </div>
@@ -135,16 +141,19 @@ export default async function CatalogoPage({
   return (
     <div className="mx-auto w-full max-w-6xl px-4 py-8">
       <h1 className="mb-4 text-center">Catálogo</h1>
+      {/* Los filtros son un componente cliente aparte: Chip no acepta href y
+          la única forma de que el chip sea él mismo el enlace enfocable es
+          component={Link}, que desde acá rompería el SSR. El motivo largo está
+          en chip-categoria.tsx. */}
       <div className="mb-6 flex flex-wrap justify-center gap-2">
-        <Link href="/catalogo">
-          <Badge variant={!categoriaSlug ? "default" : "outline"}>Todos</Badge>
-        </Link>
+        <ChipCategoria label="Todos" href="/catalogo" activo={!categoriaSlug} />
         {categories.map((c) => (
-          <Link key={c.id} href={`/catalogo?categoria=${c.slug}`}>
-            <Badge variant={categoriaSlug === c.slug ? "default" : "outline"}>
-              {c.name}
-            </Badge>
-          </Link>
+          <ChipCategoria
+            key={c.id}
+            label={c.name}
+            href={`/catalogo?categoria=${c.slug}`}
+            activo={categoriaSlug === c.slug}
+          />
         ))}
       </div>
 
