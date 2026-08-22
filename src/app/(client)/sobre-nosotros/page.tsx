@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { Award, Clock, Gem, HeartHandshake, MapPin, Sparkles } from "lucide-react";
-import { Card, CardContent, CardTitle, CardDescription } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import Card from "@mui/material/Card";
+import CardContent from "@mui/material/CardContent";
+import Chip from "@mui/material/Chip";
+import Typography from "@mui/material/Typography";
 import { Revelar } from "@/components/revelar";
 import { BUSINESS_NAME } from "@/lib/constants";
 
@@ -101,9 +103,12 @@ export default function SobreNosotrosPage() {
       {/* La primera sección entra sola al cargar: ya está en pantalla, no tiene
           sentido esperar a que el usuario scrollee. Las de abajo sí se revelan. */}
       <header className="animate-fade-up text-center">
-        <Badge variant="outline" className="mb-3">
-          {INTRO.etiqueta}
-        </Badge>
+        <Chip
+          label={INTRO.etiqueta}
+          variant="outlined"
+          size="small"
+          className="mb-3"
+        />
         <h1>{INTRO.titulo}</h1>
         <p className="text-muted-foreground mx-auto mt-3 max-w-2xl text-balance">
           {INTRO.bajada}
@@ -156,10 +161,14 @@ export default function SobreNosotrosPage() {
               // El escalonado hace que entren de a una en vez de todas de golpe.
               <Revelar key={valor.titulo} delay={i * 80}>
                 <Card className="tarjeta-interactiva h-full">
-                  <CardContent className="gap-2">
+                  <CardContent className="flex flex-col gap-2">
                     <Icono className="text-primary size-6" />
-                    <CardTitle>{valor.titulo}</CardTitle>
-                    <CardDescription>{valor.texto}</CardDescription>
+                    <Typography variant="subtitle1" component="h3">
+                      {valor.titulo}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      {valor.texto}
+                    </Typography>
                   </CardContent>
                 </Card>
               </Revelar>
@@ -178,14 +187,18 @@ export default function SobreNosotrosPage() {
           {EQUIPO.map((persona, i) => (
             <Revelar key={i} delay={i * 80}>
               <Card className="tarjeta-interactiva h-full text-center">
-                <CardContent className="items-center gap-1">
+                <CardContent className="flex flex-col items-center gap-1">
                   {/* Marcador de posición para la foto. */}
                   <div className="bg-muted text-muted-foreground/40 flex size-20 items-center justify-center rounded-full">
                     <Gem className="size-7" />
                   </div>
-                  <CardTitle className="mt-2">{persona.nombre}</CardTitle>
+                  <Typography variant="subtitle1" component="h3" className="mt-2">
+                    {persona.nombre}
+                  </Typography>
                   <p className="text-primary text-sm">{persona.rol}</p>
-                  <CardDescription>{persona.nota}</CardDescription>
+                  <Typography variant="body2" color="text.secondary">
+                    {persona.nota}
+                  </Typography>
                 </CardContent>
               </Card>
             </Revelar>
