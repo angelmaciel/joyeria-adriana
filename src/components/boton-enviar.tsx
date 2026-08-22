@@ -9,7 +9,7 @@ import { PantallaCargando } from "@/components/pantalla-cargando";
  *
  * Antes estos formularios no daban ninguna señal al enviarse: se apretaba
  * "Enviar" y no pasaba nada visible hasta que el servidor respondía. Con fotos
- * de hasta 8 MB eso son varios segundos en los que parece que no funcionó, y el
+ * de varios MB eso son varios segundos en los que parece que no funcionó, y el
  * reflejo es volver a apretar.
  *
  * Por eso el botón además queda deshabilitado mientras dura el envío: el

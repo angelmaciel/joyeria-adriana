@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { buildProductWhatsAppMessage, buildWhatsAppLink } from "@/lib/whatsapp";
 import { formatGuaranies } from "@/lib/utils";
 import { imagenOptimizada } from "@/lib/cloudinary";
+import { siteUrl } from "@/lib/site-url";
 
 async function getProduct(slug: string) {
   return prisma.product.findFirst({
@@ -46,8 +47,7 @@ export default async function ProductoPage({
     data: { viewCount: { increment: 1 } },
   });
 
-  const siteUrl = process.env.SITE_URL ?? "http://localhost:3000";
-  const productUrl = `${siteUrl}/producto/${product.slug}`;
+  const productUrl = `${siteUrl()}/producto/${product.slug}`;
   const waLink = buildWhatsAppLink(
     buildProductWhatsAppMessage(product.name, productUrl)
   );

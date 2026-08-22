@@ -1,5 +1,6 @@
 import { User, Phone, Camera, MessageSquareText, MessageCircle } from "lucide-react";
 import { FormError } from "@/components/form-error";
+import { MAX_UPLOAD_MB } from "@/lib/uploads";
 import { createGoldPurchaseRequest } from "@/lib/actions";
 import { BotonEnviar } from "@/components/boton-enviar";
 import { Input } from "@/components/ui/input";
@@ -56,7 +57,7 @@ export default async function VenderOroPage({
             className="text-sm file:mr-3 file:rounded-lg file:border-0 file:bg-secondary file:px-3 file:py-1.5 file:text-sm file:font-medium"
           />
           <p className="text-xs text-muted-foreground">
-            Sacale una foto a la pieza — se envía junto con el mensaje (hasta 8 MB).
+            Sacale una foto a la pieza — se envía junto con el mensaje (hasta {MAX_UPLOAD_MB} MB).
           </p>
         </div>
         <FormError error={error} />

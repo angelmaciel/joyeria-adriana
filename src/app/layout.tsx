@@ -6,6 +6,7 @@ import { SiteHeader } from "@/components/site-header";
 import { FlashToast } from "@/components/flash-toast";
 import { Toaster } from "@/components/ui/sonner";
 import { BUSINESS_NAME } from "@/lib/constants";
+import { siteUrl } from "@/lib/site-url";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -26,7 +27,7 @@ const playfairDisplay = Playfair_Display({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.SITE_URL ?? "http://localhost:3000"),
+  metadataBase: new URL(siteUrl()),
   title: BUSINESS_NAME,
   description: `Catálogo, servicios y compra de oro de ${BUSINESS_NAME}.`,
 };

@@ -14,7 +14,7 @@ import {
 } from "@/lib/password-reset";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { getClientIp } from "@/lib/request-ip";
-import { siteUrl } from "@/lib/whatsapp";
+import { siteUrl } from "@/lib/site-url";
 
 const BCRYPT_ROUNDS = 12;
 

@@ -9,9 +9,13 @@ import {
 
 const UPLOADS_ROOT = path.join(process.cwd(), "public", "uploads");
 const UPLOAD_DIR = path.join(UPLOADS_ROOT, "products");
-// 8 MB cubre las fotos de un celular actual sin pedirle al cliente que las achique.
-// Si se sube, hay que subir también serverActions.bodySizeLimit en next.config.ts.
-const MAX_SIZE_BYTES = 8 * 1024 * 1024;
+// El techo lo pone Vercel, no nosotros: corta todo request a una función en
+// 4,5 MB, y el archivo viaja dentro del body del server action. 4 MB deja
+// margen para el resto del formulario. Si se sube, hay que subir también
+// serverActions.bodySizeLimit en next.config.ts — pero por encima de 4,5 MB no
+// alcanza con eso: habría que subir la foto del navegador directo a Cloudinary
+// y mandarle al server action solo la URL.
+const MAX_SIZE_BYTES = 4 * 1024 * 1024;
 
 // La extensión y el MIME que manda el navegador son texto libre: se falsean trivialmente.
 // Lo único confiable es el magic number (primeros bytes reales del archivo).
@@ -42,10 +46,21 @@ function detectImageExtension(buffer: Buffer) {
 }
 
 // Cloudinary si está configurado; si no, disco local. El disco solo sirve para
-// desarrollo: en Render se borra en cada despliegue y las fotos quedan en 404.
+// desarrollo: en Render se borra en cada despliegue y en Vercel el filesystem
+// es de solo lectura, así que el writeFile falla con EROFS.
 async function guardarImagen(buffer: Buffer, ext: string, carpeta: string) {
   if (cloudinaryConfigurado()) {
     return subirACloudinary(buffer, `joyeria/${carpeta}`);
+  }
+
+  // Sin esto el error que llega es un EROFS crudo desde fs/promises, que no le
+  // dice a nadie que lo que falta son las credenciales de Cloudinary.
+  if (process.env.NODE_ENV === "production") {
+    throw new Error(
+      "No hay dónde guardar la foto: faltan CLOUDINARY_CLOUD_NAME, " +
+        "CLOUDINARY_API_KEY y CLOUDINARY_API_SECRET en el entorno. El disco " +
+        "local no es una alternativa en producción."
+    );
   }
 
   const dir = path.join(UPLOADS_ROOT, carpeta);

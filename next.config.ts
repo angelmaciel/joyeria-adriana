@@ -35,11 +35,16 @@ const nextConfig: NextConfig = {
   experimental: {
     serverActions: {
       // Las fotos de celular pesan varios MB y el límite por defecto (1 MB) las
-      // rechazaba. Se deja bien por encima de MAX_SIZE_BYTES (8 MB, en
+      // rechazaba. Se deja por encima de MAX_SIZE_BYTES (4 MB, en
       // src/lib/uploads.ts) a propósito: así el archivo llega hasta nuestro
       // código y el usuario ve "la foto pesa demasiado" en vez del 500 crudo de
-      // Next. Solo un archivo absurdo (>12 MB) cae en el error sin formato.
-      bodySizeLimit: "12mb",
+      // Next.
+      //
+      // No subir de acá: Vercel corta todo request a una función en 4,5 MB
+      // antes de que Next llegue a mirarlo, y lo que se ve es un 413 que este
+      // valor no puede evitar. Para aceptar fotos más grandes hay que subirlas
+      // del navegador directo a Cloudinary.
+      bodySizeLimit: "4.5mb",
     },
   },
   async headers() {

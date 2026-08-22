@@ -1,4 +1,5 @@
 import { imagenOptimizada } from "@/lib/cloudinary";
+import { siteUrl } from "@/lib/site-url";
 export function buildWhatsAppLink(message: string) {
   const number = process.env.WHATSAPP_NUMBER;
   const text = encodeURIComponent(message);
@@ -7,10 +8,6 @@ export function buildWhatsAppLink(message: string) {
 
 export function buildProductWhatsAppMessage(productName: string, productUrl: string) {
   return `Hola! Me interesa este producto: ${productName}\n${productUrl}`;
-}
-
-export function siteUrl() {
-  return process.env.SITE_URL ?? "http://localhost:3000";
 }
 
 // wa.me solo transporta texto: no se puede adjuntar la foto al chat desde la web.

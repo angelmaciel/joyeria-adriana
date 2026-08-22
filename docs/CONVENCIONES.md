@@ -132,7 +132,7 @@ pantalla. Mientras dure, las dos capas conviven.
     Tiene que ir **dentro** del `<form>`, no envolviéndolo.
 - **Un formulario público nuevo usa `BotonEnviar`, no `Button type="submit"`.**
   Además de la señal visual, deshabilita el botón mientras dura el envío: con
-  fotos de hasta 8 MB la espera es de varios segundos, y sin eso un segundo
+  fotos de varios MB la espera es de varios segundos, y sin eso un segundo
   submit crea la solicitud dos veces.
 - **Revelado al scrollear: `<Revelar>`** (`src/components/revelar.tsx`), con
   `delay` para escalonar hermanos. Usa IntersectionObserver, se desconecta al
@@ -149,6 +149,29 @@ real. Todo el texto está en constantes al principio del archivo, separadas por
 un comentario: se reemplaza eso y no hace falta tocar el markup. Si el negocio
 alguna vez quiere editarlo desde el panel, esas constantes son lo que habría que
 mover a una tabla.
+
+## Despliegue
+
+Va en **Vercel** (`vercel.json`), sobre funciones serverless. Eso condiciona lo
+que se puede escribir:
+
+- **Nada de escribir en disco.** El filesystem es de solo lectura. Las fotos van
+  a Cloudinary (`src/lib/cloudinary.ts`); el fallback a `public/uploads` es solo
+  para desarrollo y `guardarImagen()` corta con un error explícito si en
+  producción faltan las credenciales — antes eso era un `EROFS` crudo que no
+  decía qué faltaba.
+- **Ningún request puede pasar de 4,5 MB**, y el archivo de un formulario viaja
+  dentro del body del server action. Por eso `MAX_SIZE_BYTES` está en 4 MB.
+  Subirlo no sirve: el 413 lo devuelve Vercel antes de que Next mire el request.
+  Para fotos más grandes hay que subirlas del navegador directo a Cloudinary.
+- **Nada de estado en la memoria del proceso.** Hay varias instancias y ninguna
+  ve la memoria de la otra: `checkRateLimit` cuenta por instancia, así que el
+  límite efectivo es más flojo de lo que dice el número. Frena, pero no es exacto.
+- **La URL pública sale de `siteUrl()`** (`src/lib/site-url.ts`), nunca de
+  `process.env.SITE_URL` a mano: en Vercel el dominio recién se conoce después
+  del primer despliegue, y el helper cae en `VERCEL_PROJECT_PRODUCTION_URL`.
+- **Las migraciones corren solo en el build de producción**, no en el de las
+  previews, porque las previews comparten la misma base.
 
 ## Comandos
 
