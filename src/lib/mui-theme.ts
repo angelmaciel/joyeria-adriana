@@ -1,3 +1,4 @@
+import NextLink from "next/link";
 import { createTheme } from "@mui/material/styles";
 import { esES } from "@mui/material/locale";
 
@@ -68,6 +69,58 @@ export const muiTheme = createTheme(
       h4: titulo,
       // Material pone los botones en mayúsculas; el resto del sitio no.
       button: { textTransform: "none", fontWeight: 500 },
+      // Título de una tarjeta: Playfair como el resto de los títulos, pero al
+      // tamaño del cuerpo. Vive acá y no en cada pantalla porque lo comparten
+      // inicio, servicios, catálogo y sobre nosotros.
+      subtitle1: {
+        ...titulo,
+        fontWeight: 500,
+        fontSize: "1rem",
+        lineHeight: 1.375,
+      },
+    },
+    components: {
+      // Todo lo que MUI construye sobre ButtonBase (Button, CardActionArea,
+      // IconButton...) usa LinkComponent cuando le pasás href. Definirlo acá y
+      // no en cada pantalla NO es cosmético:
+      //
+      // `<CardActionArea component={Link}>` desde un server component tira
+      // "Functions cannot be passed directly to Client Components" —un
+      // componente es una función y no cruza el límite RSC—. Y falla de la peor
+      // manera: Next no rompe la página, la de-optimiza entera a renderizado en
+      // cliente. El build pasa, el tsc pasa, la respuesta es 200 y en el
+      // navegador se ve bien, pero el HTML sale sin contenido: ni las tarjetas
+      // ni el <h1> que no tenía nada que ver con MUI.
+      //
+      // Acá el theme ya vive del lado cliente (lo importa MuiProvider, que es
+      // "use client"), así que la referencia nunca cruza nada. En las pantallas
+      // va `href` solo, sin `component`.
+      MuiButtonBase: {
+        defaultProps: { LinkComponent: NextLink },
+      },
+      // El borde cálido de la marca (divider) en lugar de la sombra de Material:
+      // el sitio separa superficies con línea, no con elevación.
+      MuiCard: {
+        defaultProps: { variant: "outlined" },
+      },
+      MuiCardActionArea: {
+        // El ripple es la firma de Material y acá choca: el lenguaje de esta
+        // interfaz es el levantado dorado de .tarjeta-interactiva, que ya
+        // respeta prefers-reduced-motion y solo corre donde hay puntero fino.
+        defaultProps: { disableRipple: true },
+        styleOverrides: {
+          root: ({ theme }) => ({
+            height: "100%",
+            // Antes la tarjeta iba envuelta en un <Link> pelado: con el mouse
+            // se levantaba, pero con teclado no había más que el outline por
+            // defecto del navegador, cuadrado sobre una tarjeta redondeada.
+            "&.Mui-focusVisible": {
+              outline: `2px solid ${theme.palette.primary.main}`,
+              outlineOffset: 2,
+            },
+          }),
+        },
+      },
     },
   },
   esES,

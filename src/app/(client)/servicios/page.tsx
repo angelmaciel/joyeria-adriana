@@ -1,6 +1,8 @@
-import Link from "next/link";
+import Card from "@mui/material/Card";
+import CardActionArea from "@mui/material/CardActionArea";
+import CardContent from "@mui/material/CardContent";
+import Typography from "@mui/material/Typography";
 import { prisma } from "@/lib/prisma";
-import { Card, CardContent, CardTitle, CardDescription } from "@/components/ui/card";
 import { formatGuaranies } from "@/lib/utils";
 import { CUSTOM_ORDER_SLUG } from "@/lib/constants";
 
@@ -15,19 +17,23 @@ export default async function ServiciosPage() {
       <h1 className="mb-6 text-center">Servicios</h1>
       <div className="flex flex-col gap-4">
         {serviceTypes.map((service) => (
-          <Link key={service.id} href={`/servicios/solicitar/${service.slug}`}>
-            <Card className="tarjeta-interactiva h-full">
-              <CardContent className="gap-1">
-                <CardTitle>{service.name}</CardTitle>
-                <CardDescription>{service.description}</CardDescription>
+          <Card key={service.id} className="tarjeta-interactiva h-full">
+            <CardActionArea href={`/servicios/solicitar/${service.slug}`}>
+              <CardContent className="flex flex-col gap-1">
+                <Typography variant="subtitle1" component="h2">
+                  {service.name}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  {service.description}
+                </Typography>
                 <p className="mt-1 text-sm font-medium">
                   {service.hasFixedPrice && service.fixedPrice != null
                     ? formatGuaranies(service.fixedPrice)
                     : "A cotizar"}
                 </p>
               </CardContent>
-            </Card>
-          </Link>
+            </CardActionArea>
+          </Card>
         ))}
       </div>
       {serviceTypes.length === 0 && (

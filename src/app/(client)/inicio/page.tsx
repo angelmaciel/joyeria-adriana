@@ -1,6 +1,9 @@
 import Link from "next/link";
 import { ShoppingBag, Wrench, Coins, Hammer } from "lucide-react";
-import { Card, CardContent, CardTitle, CardDescription } from "@/components/ui/card";
+import Card from "@mui/material/Card";
+import CardActionArea from "@mui/material/CardActionArea";
+import CardContent from "@mui/material/CardContent";
+import Typography from "@mui/material/Typography";
 import { CUSTOM_ORDER_SLUG } from "@/lib/constants";
 
 const ACCIONES = [
@@ -36,15 +39,23 @@ export default function InicioPage() {
       <h1 className="mb-6 text-center">¿Qué necesitás?</h1>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         {ACCIONES.map((accion) => (
-          <Link key={accion.href} href={accion.href}>
-            <Card className="tarjeta-interactiva h-full">
+          <Card key={accion.href} className="tarjeta-interactiva h-full">
+            {/* El área clickeable es la tarjeta entera, no solo el título.
+                Con href, CardActionArea la vuelve un <a> real (el LinkComponent
+                sale del theme) y le da foco visible; antes iba envuelta en un
+                <Link> pelado y con teclado no se veía nada. */}
+            <CardActionArea href={accion.href}>
               <CardContent className="flex flex-col items-center gap-2 py-4 text-center">
                 <accion.icon className="size-10 text-primary" />
-                <CardTitle className="text-base">{accion.title}</CardTitle>
-                <CardDescription>{accion.description}</CardDescription>
+                <Typography variant="subtitle1" component="h2">
+                  {accion.title}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  {accion.description}
+                </Typography>
               </CardContent>
-            </Card>
-          </Link>
+            </CardActionArea>
+          </Card>
         ))}
       </div>
       <p className="text-muted-foreground mt-8 text-center text-sm">

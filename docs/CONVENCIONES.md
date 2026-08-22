@@ -90,6 +90,19 @@ pantalla. Mientras dure, las dos capas conviven.
 - **MUI X no va en el theme raíz**: sus locales (`esES` de `@mui/x-data-grid` y de
   `@mui/x-date-pickers`) y el `LocalizationProvider` se montan donde se usen —
   el panel—, para no cargarlos en las páginas públicas. El core sí trae `esES`.
+- **Nunca `component={...}` en un componente de MUI desde un server component.**
+  Un componente es una función y las funciones no cruzan el límite RSC: Next
+  tira "Functions cannot be passed directly to Client Components" y **de-optimiza
+  la ruta entera a renderizado en cliente**. Falla en silencio —build verde, tsc
+  verde, HTTP 200, y en el navegador se ve bien— pero el HTML sale sin contenido,
+  incluido lo que no tenía nada que ver con MUI. Para enlazar va `href` solo; el
+  `LinkComponent` está puesto una vez en `MuiButtonBase` dentro del theme, que ya
+  vive del lado cliente. Si hiciera falta otro `component`, la pantalla tiene que
+  ser `"use client"`.
+- **Al migrar una pantalla, verificar el HTML, no el navegador.** `curl` a la ruta
+  y buscar el contenido: si solo aparece dentro del payload escapado de RSC y no
+  como markup, la pantalla se de-optimizó. Las rutas públicas piden la cookie
+  `client_mode=1` (la pone la portada, ver `src/proxy.ts`).
 - Los componentes de shadcn en `src/components/ui/` se van borrando a medida que
   dejan de usarse; no hay que portarlos.
 
